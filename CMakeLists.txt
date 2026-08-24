@@ -20,30 +20,27 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
-# Passo de build da UI React/TS (ui/) -- gera ui/dist/, que e embutido como BinaryData mais
-# abaixo. Requer node/npm instalados na maquina que compila (contribuidor ou CI).
-find_program(NPM_EXECUTABLE npm REQUIRED)
+# ui/dist/index.html (React/TS via vite-plugin-singlefile, um unico HTML com JS/CSS inline)
+# precisa ser buildado ANTES de configurar este CMakeLists -- roda "npm install && npm run
+# build" dentro de ui/. Isso e feito como passo explicito (README.md / .github/workflows/
+# ci.yml), nao como custom command do CMake: um add_custom_command chamando npm dentro do
+# build MSVC multi-config se mostrou nao-confiavel no CI do Windows (o rule reportava sucesso
+# sem o arquivo de saida realmente existir, quebrando a geracao do BinaryData). Falhar aqui
+# com uma mensagem clara e mais simples e mais confiavel do que depender dessa integracao.
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/ui/dist/index.html)
+    message(FATAL_ERROR
+        "ui/dist/index.html nao encontrado. Rode antes de configurar:\n"
+        "  cd ui && npm install && npm run build")
+endif()
 
-add_custom_command(
-    OUTPUT ${CMAKE_SOURCE_DIR}/ui/dist/index.html
-    COMMAND ${NPM_EXECUTABLE} install
-    COMMAND ${NPM_EXECUTABLE} run build
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/ui
-    COMMENT "Building React/TS UI (ui/) with Vite"
-    VERBATIM
-)
-add_custom_target(BuildUi DEPENDS ${CMAKE_SOURCE_DIR}/ui/dist/index.html)
-
-# ui/dist/index.html e gerado pelo alvo BuildUi (via vite-plugin-singlefile, um unico HTML
-# com JS/CSS inline) e embutido aqui como BinaryData::index_html -- o plugin final e
-# autocontido, sem depender de arquivos soltos ao lado do binario (ver PluginEditor.cpp).
+# Embutido aqui como BinaryData::index_html -- o plugin final e autocontido, sem depender de
+# arquivos soltos ao lado do binario (ver PluginEditor.cpp).
 juce_add_binary_data(DarkDspBinaryData
     SOURCES
         ${CMAKE_SOURCE_DIR}/assets/ir/default_cab_PLACEHOLDER.wav
         ${CMAKE_SOURCE_DIR}/ui/dist/index.html
     # NOTA (T090): substitua o IR acima por um IR de cabinet real antes de qualquer release.
 )
-add_dependencies(DarkDspBinaryData BuildUi)
 
 juce_add_plugin(NikolayevskDarkDsp
     COMPANY_NAME "Nikolayevsk"
@@ -90,8 +87,6 @@ target_link_libraries(NikolayevskDarkDsp
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
 )
-
-add_dependencies(NikolayevskDarkDsp BuildUi)
 
 enable_testing()
 add_subdirectory(tests)

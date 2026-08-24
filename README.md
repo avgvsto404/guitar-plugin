@@ -5,8 +5,10 @@ Plugin de guitarra VST3, **gratuito e open source (GPLv3)**, signature do
 metal. Fusão de voicing entre um amp britânico de alto gain e um amp americano de gain em
 cascata, com pedal overdrive, cabinet/IR loader e identidade visual gótica/rústica.
 
-> Projeto em fase de especificação (Spec-Driven Development). Nenhum código de DSP/plugin foi
-> escrito ainda — a implementação segue os documentos em `specs/001-nikolayevsk-dark-dsp/`.
+> Projeto em desenvolvimento inicial (alpha), seguindo Spec-Driven Development — a
+> implementação segue os documentos em `specs/001-nikolayevsk-dark-dsp/`. Já compila e carrega
+> como VST3 (validado no Reaper/macOS); ainda faltam o IR de cabinet real e a identidade
+> visual final (ver `tasks.md`, itens T090/T091).
 
 ## Cadeia de sinal
 
@@ -45,5 +47,26 @@ detalhes em [`spec.md`](specs/001-nikolayevsk-dark-dsp/spec.md#identidade-visual
 
 ## Build
 
-Ainda não aplicável — sem código-fonte de plugin criado. Instruções de build serão
-adicionadas junto com a Fase 0 de `tasks.md`.
+Pré-requisitos: [CMake](https://cmake.org/) 3.22+, um compilador C++20 (Xcode/clang no macOS,
+MSVC no Windows), Node.js 20+.
+
+```bash
+# 1. Build da UI (React/TS) -- precisa ser feito antes do CMake configurar
+cd ui
+npm install
+npm run build
+cd ..
+
+# 2. Configure + build do plugin (baixa o JUCE e o Catch2 automaticamente via CMake FetchContent)
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --parallel
+```
+
+O `.vst3` gerado é copiado automaticamente para a pasta de plugins VST3 do sistema
+(`COPY_PLUGIN_AFTER_BUILD`). Builds de CI (Windows + macOS) ficam disponíveis para download em
+**Actions → (run) → Artifacts** no GitHub, mesmo sem ter uma máquina Windows à mão.
+
+```bash
+# Testes de DSP (Catch2)
+ctest --test-dir build -C Release --output-on-failure
+```

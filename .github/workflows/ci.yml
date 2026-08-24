@@ -20,11 +20,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      # Buildado como passo explicito ANTES do CMake (nao como custom command do CMake) --
+      # ver comentario em CMakeLists.txt sobre por que isso e mais confiavel no Windows.
+      # O retry cobre falhas de rede transitorias no registry do npm (ja aconteceu em CI).
+      - name: Build UI (React/TS)
+        shell: bash
+        working-directory: ui
+        run: |
+          for attempt in 1 2 3; do
+            npm install && npm run build && exit 0
+            echo "npm install/build falhou (tentativa $attempt/3), tentando de novo..."
+            sleep 5
+          done
+          exit 1
 
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build plugin
         run: cmake --build build --config Release --parallel
 
       - name: Run DSP unit tests (Catch2)
@@ -32,9 +48,6 @@ jobs:
         run: ctest -C Release --output-on-failure
 
       # pluginval valida o VST3 gerado (crash/threading/state) -- NFR-003 em spec.md.
-      # NOTA: o caminho do binario do VST3 gerado por juce_add_plugin varia por plataforma
-      # e por versao do JUCE (Release/<Nome>_artefacts/VST3/... em builds multi-config como
-      # Xcode/MSVC) -- ajustar o glob abaixo depois do primeiro build real (T050 em tasks.md).
       - name: Download pluginval
         shell: bash
         run: |
@@ -61,3 +74,13 @@ jobs:
             chmod +x "$PLUGINVAL_BIN"
           fi
           "$PLUGINVAL_BIN" --strictness-level 10 --validate "$VST3_PATH"
+
+      # Artefato baixavel a partir da pagina do run do Actions (aba "Summary", secao
+      # "Artifacts") -- e a forma de pegar o .vst3 do Windows sem ter uma maquina Windows.
+      - name: Upload VST3 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NikolayevskDarkDSP-${{ matrix.os }}
+          path: build/**/*.vst3
+          if-no-files-found: warn

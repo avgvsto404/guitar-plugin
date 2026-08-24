@@ -1,10 +1,60 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
 
+namespace
+{
+    // Diagnostico temporario (nao e telemetria -- so escreve local, nada e enviado a lugar
+    // nenhum): o WebView2 no Windows mostrou a pagina de erro nativa do Edge em vez de
+    // servir o resourceProvider, mesmo com getResourceProviderRoot() batendo exatamente com
+    // o que juce_WebBrowserComponent_windows.cpp espera. Sem uma maquina Windows pra debugar
+    // ao vivo, este log e o jeito de descobrir em qual ponto exato a cadeia falha (provider
+    // nunca chamado? chamado mas com erro? erro de rede real do WebView2?).
+    void logWebViewEvent (const juce::String& message)
+    {
+        const auto logFile = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                                  .getChildFile ("NikolayevskDarkDSP_webview.log");
+        logFile.appendText (juce::Time::getCurrentTime().toString (true, true, true, true)
+                                 + "  " + message + "\n");
+    }
+
+    class DiagnosticWebBrowser : public juce::WebBrowserComponent
+    {
+    public:
+        using juce::WebBrowserComponent::WebBrowserComponent;
+
+        bool pageAboutToLoad (const juce::String& newURL) override
+        {
+            logWebViewEvent ("pageAboutToLoad: " + newURL);
+            return juce::WebBrowserComponent::pageAboutToLoad (newURL);
+        }
+
+        void pageFinishedLoading (const juce::String& url) override
+        {
+            logWebViewEvent ("pageFinishedLoading: " + url);
+            juce::WebBrowserComponent::pageFinishedLoading (url);
+        }
+
+        bool pageLoadHadNetworkError (const juce::String& errorInfo) override
+        {
+            logWebViewEvent ("pageLoadHadNetworkError: " + errorInfo);
+            return juce::WebBrowserComponent::pageLoadHadNetworkError (errorInfo);
+        }
+
+        void newWindowAttemptingToLoad (const juce::String& newURL) override
+        {
+            logWebViewEvent ("newWindowAttemptingToLoad: " + newURL);
+            juce::WebBrowserComponent::newWindowAttemptingToLoad (newURL);
+        }
+    };
+}
+
 PluginEditor::PluginEditor (PluginProcessor& processorRef)
     : juce::AudioProcessorEditor (processorRef), pluginProcessor (processorRef)
 {
-    webView = std::make_unique<juce::WebBrowserComponent> (
+    logWebViewEvent ("PluginEditor construído -- BinaryData index_html size = "
+                      + juce::String (BinaryData::index_htmlSize));
+
+    webView = std::make_unique<DiagnosticWebBrowser> (
         juce::WebBrowserComponent::Options {}
             // No Windows, precisa ser explicito -- o default e Internet Explorer. Em
             // plataformas onde webview2 nao existe (Mac/Linux), o JUCE cai de volta pro
@@ -65,10 +115,11 @@ void PluginEditor::resized()
         webView->setBounds (getLocalBounds());
 }
 
-std::optional<juce::WebBrowserComponent::Resource> PluginEditor::provideResource (const juce::String&)
+std::optional<juce::WebBrowserComponent::Resource> PluginEditor::provideResource (const juce::String& url)
 {
     // App React e uma SPA de arquivo unico (ui/vite.config.ts usa vite-plugin-singlefile) --
     // qualquer URL pedida recebe o mesmo index.html embutido como BinaryData.
+    logWebViewEvent ("provideResource chamado com url = " + url);
     return juce::WebBrowserComponent::Resource {
         std::vector<std::byte> (
             reinterpret_cast<const std::byte*> (BinaryData::index_html),

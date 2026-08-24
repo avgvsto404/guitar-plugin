@@ -6,6 +6,10 @@ PluginEditor::PluginEditor (PluginProcessor& processorRef)
 {
     webView = std::make_unique<juce::WebBrowserComponent> (
         juce::WebBrowserComponent::Options {}
+            // No Windows, precisa ser explicito -- o default e Internet Explorer. Em
+            // plataformas onde webview2 nao existe (Mac/Linux), o JUCE cai de volta pro
+            // backend default silenciosamente (WebBrowserComponent::areOptionsSupported).
+            .withBackend (juce::WebBrowserComponent::Options::Backend::webview2)
             .withNativeIntegrationEnabled()
             .withResourceProvider ([this] (const juce::String& url) { return provideResource (url); })
             .withNativeFunction ("setParam",

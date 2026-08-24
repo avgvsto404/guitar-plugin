@@ -68,9 +68,9 @@ jobs:
             exit 1
           fi
           if [ "$RUNNER_OS" = "Windows" ]; then
-            PLUGINVAL_BIN=$(find tools/pluginval -iname "pluginval.exe" -print -quit)
+            PLUGINVAL_BIN=$(find tools/pluginval -type f -iname "pluginval.exe" -print -quit)
           else
-            PLUGINVAL_BIN=$(find tools/pluginval -iname "pluginval" -print -quit)
+            PLUGINVAL_BIN=$(find tools/pluginval -type f -iname "pluginval" -print -quit)
             chmod +x "$PLUGINVAL_BIN"
           fi
           "$PLUGINVAL_BIN" --strictness-level 10 --validate "$VST3_PATH"

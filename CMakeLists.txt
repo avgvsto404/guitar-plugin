@@ -74,6 +74,14 @@ target_compile_definitions(NikolayevskDarkDsp
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
+        # No Windows, o backend default do WebBrowserComponent e o Internet Explorer, que nao
+        # suporta withResourceProvider (so compila -- e so existe -- com o backend WebView2
+        # habilitado). Sem isso o build do Windows falha com "'withResourceProvider': is not a
+        # member of 'juce::WebBrowserComponent::Options'". Carregamento dinamico (sem
+        # JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING), entao nao precisa do pacote NuGet do
+        # WebView2 pra compilar -- so precisa do WebView2Loader.dll existir do lado do binario
+        # em tempo de execucao no Windows real (ainda nao validado, ver PluginEditor.cpp).
+        JUCE_USE_WIN_WEBVIEW2=1
 )
 
 target_link_libraries(NikolayevskDarkDsp

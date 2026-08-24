@@ -54,12 +54,27 @@ PluginEditor::PluginEditor (PluginProcessor& processorRef)
     logWebViewEvent ("PluginEditor construído -- BinaryData index_html size = "
                       + juce::String (BinaryData::index_htmlSize));
 
+    // CONFIRMADO EM MAQUINA REAL: mesmo com linkagem estatica, o WebView2 ainda caia pro IE.
+    // A doc do proprio JUCE avisa exatamente sobre isso -- em plugins, o WebView2 tenta criar
+    // sua pasta de user-data do lado do executavel do HOST (o Reaper, normalmente dentro de
+    // Program Files, sem permissao de escrita), a criacao do ambiente falha silenciosamente e
+    // cai pro IE. Apontando pra uma pasta com permissao de escrita garantida.
+    const auto webView2UserDataFolder = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                                             .getChildFile ("NikolayevskDarkDSP")
+                                             .getChildFile ("WebView2UserData");
+    webView2UserDataFolder.createDirectory();
+    logWebViewEvent ("webView2UserDataFolder = " + webView2UserDataFolder.getFullPathName()
+                      + " (exists=" + (webView2UserDataFolder.isDirectory() ? "sim" : "nao") + ")");
+
     webView = std::make_unique<DiagnosticWebBrowser> (
         juce::WebBrowserComponent::Options {}
             // No Windows, precisa ser explicito -- o default e Internet Explorer. Em
             // plataformas onde webview2 nao existe (Mac/Linux), o JUCE cai de volta pro
             // backend default silenciosamente (WebBrowserComponent::areOptionsSupported).
             .withBackend (juce::WebBrowserComponent::Options::Backend::webview2)
+            .withWinWebView2Options (
+                juce::WebBrowserComponent::Options::WinWebView2 {}
+                    .withUserDataFolder (webView2UserDataFolder))
             .withNativeIntegrationEnabled()
             .withResourceProvider ([this] (const juce::String& url) { return provideResource (url); })
             .withNativeFunction ("setParam",

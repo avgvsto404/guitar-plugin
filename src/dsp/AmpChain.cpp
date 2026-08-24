@@ -1,0 +1,81 @@
+#include "AmpChain.h"
+
+void AmpChain::prepare (const juce::dsp::ProcessSpec& spec)
+{
+    tubeScreamer.prepare (spec);
+    preamp.prepare (spec);
+    toneStack.prepare (spec);
+    powerAmp.prepare (spec);
+    cabinet.prepare (spec);
+    masterGain.reset (spec.sampleRate, 0.02);
+    gateEnvelope = 0.0f;
+}
+
+void AmpChain::reset()
+{
+    tubeScreamer.reset();
+    preamp.reset();
+    toneStack.reset();
+    powerAmp.reset();
+    cabinet.reset();
+    gateEnvelope = 0.0f;
+}
+
+void AmpChain::setMode (AmpMode mode)
+{
+    preamp.setMode (mode);
+    powerAmp.setMode (mode);
+}
+
+void AmpChain::setAmpGain (float value01) { preamp.setGain (value01); }
+void AmpChain::setBass (float value01) { toneStack.setBass (value01); }
+void AmpChain::setMid (float value01) { toneStack.setMid (value01); }
+void AmpChain::setTreble (float value01) { toneStack.setTreble (value01); }
+void AmpChain::setPresence (float value01) { toneStack.setPresence (value01); }
+void AmpChain::setMaster (float value01) { masterGain.setTargetValue (value01); }
+
+void AmpChain::setTsDrive (float value01) { tubeScreamer.setDrive (value01); }
+void AmpChain::setTsTone (float value01) { tubeScreamer.setTone (value01); }
+void AmpChain::setTsLevel (float value01) { tubeScreamer.setLevel (value01); }
+void AmpChain::setTsBypass (bool bypass) { tubeScreamer.setBypass (bypass); }
+
+bool AmpChain::loadIrFromFile (const juce::File& file) { return cabinet.loadIrFromFile (file); }
+void AmpChain::loadDefaultIr() { cabinet.loadDefaultIr(); }
+
+void AmpChain::applyNoiseGate (juce::dsp::AudioBlock<float>& block)
+{
+    const auto numSamples = block.getNumSamples();
+    const auto numChannels = block.getNumChannels();
+
+    for (size_t i = 0; i < numSamples; ++i)
+    {
+        float peak = 0.0f;
+        for (size_t ch = 0; ch < numChannels; ++ch)
+            peak = juce::jmax (peak, std::abs (block.getChannelPointer (ch)[i]));
+
+        const auto targetEnv = peak > noiseGateThreshold ? 1.0f : 0.0f;
+        const auto coeff = targetEnv > gateEnvelope ? gateAttackCoeff : gateReleaseCoeff;
+        gateEnvelope += coeff * (targetEnv - gateEnvelope);
+
+        for (size_t ch = 0; ch < numChannels; ++ch)
+            block.getChannelPointer (ch)[i] *= gateEnvelope;
+    }
+}
+
+void AmpChain::process (juce::dsp::AudioBlock<float>& block)
+{
+    applyNoiseGate (block);
+    tubeScreamer.process (block);
+    preamp.process (block);
+    toneStack.process (block);
+    powerAmp.process (block);
+    cabinet.process (block);
+
+    const auto numSamples = block.getNumSamples();
+    for (size_t i = 0; i < numSamples; ++i)
+    {
+        const auto gain = masterGain.getNextValue();
+        for (size_t ch = 0; ch < block.getNumChannels(); ++ch)
+            block.getChannelPointer (ch)[i] *= gain;
+    }
+}

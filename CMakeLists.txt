@@ -1,0 +1,97 @@
+cmake_minimum_required(VERSION 3.22)
+
+project(NikolayevskDarkDsp VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(FetchContent)
+
+# NOTA: fixe esta tag na versao estavel mais recente do JUCE 8.x disponivel no momento do
+# build (T001) -- este valor e um ponto de partida, nao uma garantia de compatibilidade com
+# o restante do CMakeLists (em especial a API de WebBrowserComponent usada em
+# src/plugin/PluginEditor.cpp, que evoluiu entre releases pontuais do JUCE 8. Ver
+# specs/001-nikolayevsk-dark-dsp/research.md secao 4).
+FetchContent_Declare(
+    JUCE
+    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+    GIT_TAG 8.0.6
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(JUCE)
+
+# Passo de build da UI React/TS (ui/) -- gera ui/dist/, que e embutido como BinaryData mais
+# abaixo. Requer node/npm instalados na maquina que compila (contribuidor ou CI).
+find_program(NPM_EXECUTABLE npm REQUIRED)
+
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/ui/dist/index.html
+    COMMAND ${NPM_EXECUTABLE} install
+    COMMAND ${NPM_EXECUTABLE} run build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/ui
+    COMMENT "Building React/TS UI (ui/) with Vite"
+    VERBATIM
+)
+add_custom_target(BuildUi DEPENDS ${CMAKE_SOURCE_DIR}/ui/dist/index.html)
+
+# ui/dist/index.html e gerado pelo alvo BuildUi (via vite-plugin-singlefile, um unico HTML
+# com JS/CSS inline) e embutido aqui como BinaryData::index_html -- o plugin final e
+# autocontido, sem depender de arquivos soltos ao lado do binario (ver PluginEditor.cpp).
+juce_add_binary_data(DarkDspBinaryData
+    SOURCES
+        ${CMAKE_SOURCE_DIR}/assets/ir/default_cab_PLACEHOLDER.wav
+        ${CMAKE_SOURCE_DIR}/ui/dist/index.html
+    # NOTA (T090): substitua o IR acima por um IR de cabinet real antes de qualquer release.
+)
+add_dependencies(DarkDspBinaryData BuildUi)
+
+juce_add_plugin(NikolayevskDarkDsp
+    COMPANY_NAME "Nikolayevsk"
+    PRODUCT_NAME "Nikolayevsk DARK DSP"
+    PLUGIN_MANUFACTURER_CODE Nklv
+    PLUGIN_CODE Ndd1
+    FORMATS VST3
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    IS_MIDI_EFFECT FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    COPY_PLUGIN_AFTER_BUILD TRUE
+    VST3_CATEGORIES Fx Distortion
+)
+
+target_sources(NikolayevskDarkDsp
+    PRIVATE
+        src/plugin/PluginProcessor.cpp
+        src/plugin/PluginEditor.cpp
+        src/dsp/AmpChain.cpp
+        src/dsp/TubeScreamerStage.cpp
+        src/dsp/PreampStage.cpp
+        src/dsp/ToneStack.cpp
+        src/dsp/PowerAmpSaturation.cpp
+        src/dsp/CabinetLoader.cpp
+)
+
+target_compile_definitions(NikolayevskDarkDsp
+    PUBLIC
+        JUCE_WEB_BROWSER=1
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+)
+
+target_link_libraries(NikolayevskDarkDsp
+    PRIVATE
+        DarkDspBinaryData
+        juce::juce_audio_utils
+        juce::juce_dsp
+        juce::juce_gui_extra
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)
+
+add_dependencies(NikolayevskDarkDsp BuildUi)
+
+enable_testing()
+add_subdirectory(tests)

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Run DSP unit tests (Catch2)
+        working-directory: build
+        run: ctest -C Release --output-on-failure
+
+      # pluginval valida o VST3 gerado (crash/threading/state) -- NFR-003 em spec.md.
+      # NOTA: o caminho do binario do VST3 gerado por juce_add_plugin varia por plataforma
+      # e por versao do JUCE (Release/<Nome>_artefacts/VST3/... em builds multi-config como
+      # Xcode/MSVC) -- ajustar o glob abaixo depois do primeiro build real (T050 em tasks.md).
+      - name: Download pluginval
+        shell: bash
+        run: |
+          mkdir -p tools/pluginval
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            curl -fsSL -o tools/pluginval/pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip
+          else
+            curl -fsSL -o tools/pluginval/pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          fi
+          unzip -o tools/pluginval/pluginval.zip -d tools/pluginval
+
+      - name: Run pluginval (strict)
+        shell: bash
+        run: |
+          VST3_PATH=$(find build -iname "*.vst3" -print -quit)
+          if [ -z "$VST3_PATH" ]; then
+            echo "Nenhum .vst3 encontrado em build/ -- ajustar este passo (T050 em tasks.md)."
+            exit 1
+          fi
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            PLUGINVAL_BIN=$(find tools/pluginval -iname "pluginval.exe" -print -quit)
+          else
+            PLUGINVAL_BIN=$(find tools/pluginval -iname "pluginval" -print -quit)
+            chmod +x "$PLUGINVAL_BIN"
+          fi
+          "$PLUGINVAL_BIN" --strictness-level 10 --validate "$VST3_PATH"

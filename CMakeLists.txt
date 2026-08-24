@@ -55,6 +55,11 @@ juce_add_plugin(NikolayevskDarkDsp
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
     COPY_PLUGIN_AFTER_BUILD TRUE
     VST3_CATEGORIES Fx Distortion
+    # So tem efeito no Windows (JUCEUtils.cmake so le isso dentro de um bloco elseif(WIN32)) --
+    # sem isso juce_gui_extra.cpp nao acha WebView2.h ao compilar com JUCE_USE_WIN_WEBVIEW2=1.
+    # Precisa do pacote NuGet Microsoft.Web.WebView2 disponivel via JUCE_WEBVIEW2_PACKAGE_LOCATION
+    # (ver .github/workflows/ci.yml e README.md para o passo manual local no Windows).
+    NEEDS_WEBVIEW2 TRUE
 )
 
 target_sources(NikolayevskDarkDsp

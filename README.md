@@ -50,6 +50,17 @@ detalhes em [`spec.md`](specs/001-nikolayevsk-dark-dsp/spec.md#identidade-visual
 Pré-requisitos: [CMake](https://cmake.org/) 3.22+, um compilador C++20 (Xcode/clang no macOS,
 MSVC no Windows), Node.js 20+.
 
+**Windows apenas**: a UI roda em WebView2 (Edge/Chromium), que exige o SDK
+`Microsoft.Web.WebView2` disponível em tempo de compilação. Baixe o `.nupkg` e aponte o CMake
+para a pasta onde extraiu (mesma lógica usada em `.github/workflows/ci.yml`):
+
+```powershell
+mkdir webview2_packages\Microsoft.Web.WebView2.1.0.4078.44
+curl.exe -L -o webview2.nupkg "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.4078.44"
+tar -xf webview2.nupkg -C webview2_packages\Microsoft.Web.WebView2.1.0.4078.44
+cmake -B build -DJUCE_WEBVIEW2_PACKAGE_LOCATION="%cd%\webview2_packages" ...
+```
+
 ```bash
 # 1. Build da UI (React/TS) -- precisa ser feito antes do CMake configurar
 cd ui

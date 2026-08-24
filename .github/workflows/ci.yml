@@ -37,8 +37,21 @@ jobs:
           done
           exit 1
 
+      # So no Windows: JUCE_USE_WIN_WEBVIEW2=1 (CMakeLists.txt) exige o header WebView2.h em
+      # tempo de compilacao, mesmo usando carregamento dinamico em runtime. Baixa o .nupkg
+      # oficial direto (confirmado localmente: build/native/include/WebView2.h e
+      # build/native/x64/WebView2LoaderStatic.lib) em vez de depender de `nuget`/PowerShell
+      # Install-Package instalados no runner.
+      - name: Fetch WebView2 SDK (Windows only)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mkdir -p webview2_packages/Microsoft.Web.WebView2.1.0.4078.44
+          curl -fsSL -o webview2.nupkg "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.4078.44"
+          unzip -q webview2.nupkg -d webview2_packages/Microsoft.Web.WebView2.1.0.4078.44
+
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DJUCE_WEBVIEW2_PACKAGE_LOCATION="${{ github.workspace }}/webview2_packages"
 
       - name: Build plugin
         run: cmake --build build --config Release --parallel

@@ -1,5 +1,7 @@
 # Nikolayevsk DARK DSP
 
+<img width="1279" height="775" alt="image" src="https://github.com/user-attachments/assets/0c33ade7-5924-496f-8b9e-d82472984886" />
+
 Plugin de guitarra VST3, **gratuito e open source (GPLv3)**, signature do
 [Nikolayevsk](https://github.com/nikolayevsk404) — guitarrista brasileiro de progressive power
 metal. Fusão de voicing entre um amp britânico de alto gain e um amp americano de gain em

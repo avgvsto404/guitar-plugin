@@ -5,18 +5,20 @@ void PreampStage::prepare (const juce::dsp::ProcessSpec& spec)
     sampleRate = spec.sampleRate;
     gainAmount.reset (spec.sampleRate, 0.02);
     preFilter.prepare (spec);
-    updatePreFilter();
+    tightenFilter.prepare (spec);
+    updateFilters();
 }
 
 void PreampStage::reset()
 {
     preFilter.reset();
+    tightenFilter.reset();
 }
 
 void PreampStage::setMode (AmpMode newMode)
 {
     mode = newMode;
-    updatePreFilter();
+    updateFilters();
 }
 
 void PreampStage::setGain (float gain01)
@@ -24,28 +26,32 @@ void PreampStage::setGain (float gain01)
     gainAmount.setTargetValue (gain01);
 }
 
-void PreampStage::updatePreFilter()
+void PreampStage::updateFilters()
 {
-    // Clean: headroom alto, corte suave. Rhythm/Lead: corte mais alto (voicing "CALI_HI")
-    // para manter graves "tight" em palm mute, conforme research.md secao 1.
-    const float cutoffHz = mode == AmpMode::Clean ? 60.0f : 110.0f;
-    *preFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, cutoffHz);
+    // Clean: headroom alto, corte suave. Rhythm/Lead: corte bem mais alto (voicing
+    // "CALI_HI") pra manter graves "tight" em palm mute -- Rhythm mais apertado que Lead
+    // (Lead mantem um pouco mais de corpo pro sustain), conforme research.md secao 1.
+    const float preCutoffHz = mode == AmpMode::Clean ? 60.0f : (mode == AmpMode::Rhythm ? 140.0f : 100.0f);
+    *preFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, preCutoffHz);
+
+    const float tightenCutoffHz = mode == AmpMode::Rhythm ? 100.0f : 80.0f;
+    *tightenFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, tightenCutoffHz);
 }
 
 void PreampStage::process (juce::dsp::AudioBlock<float>& block)
 {
-    juce::dsp::ProcessContextReplacing<float> context (block);
-    preFilter.process (context);
+    juce::dsp::ProcessContextReplacing<float> preContext (block);
+    preFilter.process (preContext);
 
     const auto numSamples = block.getNumSamples();
     const auto numChannels = block.getNumChannels();
 
-    // Numero de estagios em cascata e multiplicador de drive por modo -- ver tabela
-    // "Voicing Target" em spec.md: Clean é headroom alto (praticamente linear), Rhythm/Lead
-    // usam ganho em cascata (voicing "CALI_HI") com presenca cortante extra no Lead
-    // (voicing "BRIT_HI").
-    const int cascadedStages = mode == AmpMode::Clean ? 1 : (mode == AmpMode::Rhythm ? 2 : 3);
-    const float driveMultiplier = mode == AmpMode::Clean ? 3.0f : (mode == AmpMode::Rhythm ? 12.0f : 18.0f);
+    // Numero de estagios em cascata e multiplicador de drive por modo -- fusao de alto gain
+    // britanico (presenca cortante, voicing "BRIT_HI") com ganho em cascata americano
+    // (voicing "CALI_HI"), conforme tabela "Voicing Target" em spec.md. Retunado pra djent/
+    // prog/power metal: Rhythm e Lead MUITO mais quentes que a calibracao original.
+    const int cascadedStages = mode == AmpMode::Clean ? 1 : (mode == AmpMode::Rhythm ? 3 : 4);
+    const float driveMultiplier = mode == AmpMode::Clean ? 3.0f : (mode == AmpMode::Rhythm ? 22.0f : 34.0f);
 
     for (size_t i = 0; i < numSamples; ++i)
     {
@@ -61,5 +67,11 @@ void PreampStage::process (juce::dsp::AudioBlock<float>& block)
 
             data[i] = sample;
         }
+    }
+
+    if (mode != AmpMode::Clean)
+    {
+        juce::dsp::ProcessContextReplacing<float> tightenContext (block);
+        tightenFilter.process (tightenContext);
     }
 }

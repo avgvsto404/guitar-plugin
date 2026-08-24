@@ -5,10 +5,11 @@
 #include "ToneStack.h"
 #include "PowerAmpSaturation.h"
 #include "CabinetLoader.h"
+#include "AmbienceStage.h"
 
 // Orquestra a cadeia completa (plan.md, "DSP Chain"):
 // NoiseGate -> TubeScreamerStage -> PreampStage -> ToneStack -> PowerAmpSaturation ->
-// CabinetLoader -> Master (output trim).
+// CabinetLoader -> [AmbienceStage, so no Clean] -> Master (output trim).
 class AmpChain
 {
 public:
@@ -42,7 +43,9 @@ private:
     ToneStack toneStack;
     PowerAmpSaturation powerAmp;
     CabinetLoader cabinet;
+    AmbienceStage ambience;
 
+    AmpMode currentMode = AmpMode::Clean;
     juce::SmoothedValue<float> masterGain { 0.7f };
 
     // Gate fixo por ora (nao exposto como parametro de UI ainda) -- necessario porque

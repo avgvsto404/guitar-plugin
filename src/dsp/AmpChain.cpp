@@ -7,6 +7,7 @@ void AmpChain::prepare (const juce::dsp::ProcessSpec& spec)
     toneStack.prepare (spec);
     powerAmp.prepare (spec);
     cabinet.prepare (spec);
+    ambience.prepare (spec);
     masterGain.reset (spec.sampleRate, 0.02);
     gateEnvelope = 0.0f;
 }
@@ -18,11 +19,13 @@ void AmpChain::reset()
     toneStack.reset();
     powerAmp.reset();
     cabinet.reset();
+    ambience.reset();
     gateEnvelope = 0.0f;
 }
 
 void AmpChain::setMode (AmpMode mode)
 {
+    currentMode = mode;
     preamp.setMode (mode);
     powerAmp.setMode (mode);
 }
@@ -70,6 +73,11 @@ void AmpChain::process (juce::dsp::AudioBlock<float>& block)
     toneStack.process (block);
     powerAmp.process (block);
     cabinet.process (block);
+
+    // Ambiencia (chorus/slapback/reverb curta) so no Clean -- Rhythm/Lead ficam secos e
+    // tight, sem lavar o hi-gain (FR-003, fusao djent/prog/power metal pedida pelo usuario).
+    if (currentMode == AmpMode::Clean)
+        ambience.process (block);
 
     const auto numSamples = block.getNumSamples();
     for (size_t i = 0; i < numSamples; ++i)

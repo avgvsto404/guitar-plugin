@@ -18,7 +18,7 @@ public:
     void setGain (float gain01);
 
 private:
-    void updatePreFilter();
+    void updateFilters();
 
     AmpMode mode = AmpMode::Clean;
     juce::SmoothedValue<float> gainAmount { 0.4f };
@@ -28,4 +28,10 @@ private:
     // "CALI_HI" -- research.md secao 1). Troca de coeficiente ao mudar de modo ainda pode
     // gerar transiente audivel; suavizacao completa fica para T016.
     juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> preFilter;
+
+    // Passa-alta POS-clipping, so em Rhythm/Lead ("tightening" -- tecnica comum em amps de
+    // alto gain djent/prog: o proprio clipping acrescenta harmonicos graves que engordam e
+    // amolecem o palm mute; um corte depois do clip resolve sem perder o corpo do sinal
+    // original, que ja passou pelo preFilter antes do clip).
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> tightenFilter;
 };

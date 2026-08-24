@@ -72,6 +72,7 @@ target_sources(NikolayevskDarkDsp
         src/dsp/ToneStack.cpp
         src/dsp/PowerAmpSaturation.cpp
         src/dsp/CabinetLoader.cpp
+        src/dsp/AmbienceStage.cpp
 )
 
 target_compile_definitions(NikolayevskDarkDsp

@@ -82,11 +82,16 @@ target_compile_definitions(NikolayevskDarkDsp
         # No Windows, o backend default do WebBrowserComponent e o Internet Explorer, que nao
         # suporta withResourceProvider (so compila -- e so existe -- com o backend WebView2
         # habilitado). Sem isso o build do Windows falha com "'withResourceProvider': is not a
-        # member of 'juce::WebBrowserComponent::Options'". Carregamento dinamico (sem
-        # JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING), entao nao precisa do pacote NuGet do
-        # WebView2 pra compilar -- so precisa do WebView2Loader.dll existir do lado do binario
-        # em tempo de execucao no Windows real (ainda nao validado, ver PluginEditor.cpp).
+        # member of 'juce::WebBrowserComponent::Options'".
         JUCE_USE_WIN_WEBVIEW2=1
+        # CONFIRMADO EM MAQUINA REAL (log de PluginEditor.cpp): com carregamento dinamico (sem
+        # esta flag), o runtime faz LoadLibraryA("WebView2Loader.dll") e nao acha o arquivo (a
+        # gente nunca empacotou essa DLL do lado do binario) -- a criacao do WebView2 falha
+        # silenciosamente e o JUCE cai de volta pro Internet Explorer (log mostrou literalmente
+        # "res://ieframe.dll/navcancl.htm"). Linkagem estatica usa direto o
+        # WebView2LoaderStatic.lib que o NEEDS_WEBVIEW2 abaixo ja linka -- sem precisar
+        # distribuir DLL nenhuma junto do plugin.
+        JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
 )
 
 target_link_libraries(NikolayevskDarkDsp

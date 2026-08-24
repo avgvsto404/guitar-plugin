@@ -3,7 +3,7 @@ import { AmpHead } from "./components/AmpHead";
 import { TubeScreamerPedal } from "./components/TubeScreamerPedal";
 import { Cabinet } from "./components/Cabinet";
 import { nativeBridge, type IrState, type PluginParams } from "./bridge/nativeBridge";
-import { colors, typography } from "./theme/tokens";
+import "./theme/amp.css";
 
 const INITIAL_IR: IrState = { loaded: true, name: "carregando...", isDefault: true };
 
@@ -25,11 +25,7 @@ export default function App() {
   }, []);
 
   if (!params) {
-    return (
-      <div style={{ color: colors.textMuted, fontFamily: typography.body, padding: "20px" }}>
-        Conectando ao motor de audio...
-      </div>
-    );
+    return <div className="dark-dsp-app dark-dsp-footer">Conectando ao motor de audio...</div>;
   }
 
   const setParam = <K extends keyof PluginParams>(id: K, value: PluginParams[K]) => {
@@ -50,31 +46,24 @@ export default function App() {
   };
 
   return (
-    <div
-      style={{
-        background: colors.background,
-        minHeight: "100vh",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        fontFamily: typography.body,
-      }}
-    >
-      <AmpHead
-        params={params}
-        mode={params.ampMode}
-        onModeChange={(mode) => setParam("ampMode", mode)}
-        onParamChange={(id, value) => setParam(id, value)}
-      />
-      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-        <TubeScreamerPedal
+    <div className="dark-dsp-app">
+      <div className="rig">
+        <AmpHead
           params={params}
-          bypass={params.tsBypass}
+          mode={params.ampMode}
+          onModeChange={(mode) => setParam("ampMode", mode)}
           onParamChange={(id, value) => setParam(id, value)}
-          onBypassToggle={() => setParam("tsBypass", !params.tsBypass)}
         />
-        <Cabinet ir={ir} onBrowseForIr={handleBrowseForIr} error={irError} />
+        <div className="lower">
+          <TubeScreamerPedal
+            params={params}
+            bypass={params.tsBypass}
+            onParamChange={(id, value) => setParam(id, value)}
+            onBypassToggle={() => setParam("tsBypass", !params.tsBypass)}
+          />
+          <Cabinet ir={ir} onBrowseForIr={handleBrowseForIr} error={irError} />
+        </div>
+        <footer className="dark-dsp-footer">NIKOLAYEVSK DARK DSP — SIGNATURE AMP SIMULATOR</footer>
       </div>
     </div>
   );

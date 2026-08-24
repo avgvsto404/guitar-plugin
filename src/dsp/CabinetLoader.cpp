@@ -25,7 +25,10 @@ void CabinetLoader::loadDefaultIr()
         juce::dsp::Convolution::Normalise::yes);
 
     usingDefaultIr = true;
-    currentIrName = "default_cab_PLACEHOLDER (embutido -- ver T090 em tasks.md)";
+    // Nome curto pra UI -- o fato de ser placeholder (T090 em tasks.md) fica so no comentario
+    // do header, nao vaza pra tela; a UI mostra o qualificador "padrao embutido" via
+    // isUsingDefaultIr(), nao via string solta no nome.
+    currentIrName = "default_cab";
 }
 
 bool CabinetLoader::loadIrFromFile (const juce::File& file)

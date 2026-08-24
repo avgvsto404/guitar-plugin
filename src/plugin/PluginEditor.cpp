@@ -119,7 +119,7 @@ PluginEditor::PluginEditor (PluginProcessor& processorRef)
     webView->goToURL (juce::WebBrowserComponent::getResourceProviderRoot());
 
     setResizable (true, true);
-    setSize (760, 420);
+    setSize (840, 560);
 }
 
 PluginEditor::~PluginEditor() = default;

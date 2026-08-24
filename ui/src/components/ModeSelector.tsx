@@ -1,4 +1,3 @@
-import { colors, typography } from "../theme/tokens";
 import type { AmpMode } from "../bridge/nativeBridge";
 
 const MODES: { id: AmpMode; label: string }[] = [
@@ -16,28 +15,17 @@ interface ModeSelectorProps {
 // os identificadores internos de voicing (BRIT_HI/CALI_HI, ver plan.md) nunca aparecem aqui.
 export function ModeSelector({ mode, onChange }: ModeSelectorProps) {
   return (
-    <div style={{ display: "flex", gap: "2px" }}>
-      {MODES.map(({ id, label }) => {
-        const active = id === mode;
-        return (
-          <button
-            key={id}
-            onClick={() => onChange(id)}
-            style={{
-              fontFamily: typography.heading,
-              fontSize: "13px",
-              letterSpacing: "0.08em",
-              padding: "8px 14px",
-              border: `1px solid ${colors.metalBrushed}`,
-              background: active ? colors.wineBright : colors.panelRaised,
-              color: active ? colors.textPrimary : colors.textMuted,
-              cursor: "pointer",
-            }}
-          >
-            {label}
-          </button>
-        );
-      })}
+    <div className="modes">
+      {MODES.map(({ id, label }) => (
+        <button
+          key={id}
+          type="button"
+          className={`mode-tab${id === mode ? " active" : ""}`}
+          onClick={() => onChange(id)}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }

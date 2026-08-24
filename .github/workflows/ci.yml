@@ -50,8 +50,19 @@ jobs:
           curl -fsSL -o webview2.nupkg "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.4078.44"
           unzip -q webview2.nupkg -d webview2_packages/Microsoft.Web.WebView2.1.0.4078.44
 
+      # -A x64 e obrigatorio no Windows: sem isso, o gerador Visual Studio do CMake default
+      # pra Win32 (x86) -- o build compila limpo, mas gera um .vst3 de 32 bits que o Windows
+      # se recusa a carregar num host de 64 bits (STATUS_INVALID_IMAGE_FORMAT,
+      # "nao foi projetado para ser executado no Windows ou contem um erro"). Confirmado num
+      # Reaper x64 real. Makefiles/Ninja (macOS) nao entendem -A, entao so aplica no Windows.
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DJUCE_WEBVIEW2_PACKAGE_LOCATION="${{ github.workspace }}/webview2_packages"
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cmake -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DJUCE_WEBVIEW2_PACKAGE_LOCATION="${{ github.workspace }}/webview2_packages"
+          else
+            cmake -B build -DCMAKE_BUILD_TYPE=Release -DJUCE_WEBVIEW2_PACKAGE_LOCATION="${{ github.workspace }}/webview2_packages"
+          fi
 
       - name: Build plugin
         run: cmake --build build --config Release --parallel

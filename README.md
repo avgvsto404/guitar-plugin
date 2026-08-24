@@ -60,7 +60,14 @@ para a pasta onde extraiu (mesma lógica usada em `.github/workflows/ci.yml`):
 mkdir webview2_packages\Microsoft.Web.WebView2.1.0.4078.44
 curl.exe -L -o webview2.nupkg "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.4078.44"
 tar -xf webview2.nupkg -C webview2_packages\Microsoft.Web.WebView2.1.0.4078.44
-cmake -B build -DJUCE_WEBVIEW2_PACKAGE_LOCATION="%cd%\webview2_packages" ...
+```
+
+**Windows apenas**: passe sempre `-A x64` ao configurar -- sem isso o gerador do Visual
+Studio assume Win32 (x86) por padrao e gera um `.vst3` que nenhuma DAW de 64 bits carrega
+("nao foi projetado para ser executado no Windows ou contem um erro").
+
+```powershell
+cmake -B build -A x64 -DJUCE_WEBVIEW2_PACKAGE_LOCATION="%cd%\webview2_packages" ...
 ```
 
 ```bash

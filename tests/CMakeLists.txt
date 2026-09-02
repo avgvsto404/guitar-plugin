@@ -11,11 +11,15 @@ FetchContent_MakeAvailable(Catch2)
 add_executable(DarkDspTests
     dsp/TubeScreamerStageTests.cpp
     dsp/NamAmpStageTests.cpp
+    dsp/AmpChainIntegrationTests.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/TubeScreamerStage.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/PreampStage.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/ToneStack.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/PowerAmpSaturation.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/NamAmpStage.cpp
+    ${CMAKE_SOURCE_DIR}/src/dsp/CabinetLoader.cpp
+    ${CMAKE_SOURCE_DIR}/src/dsp/AmbienceStage.cpp
+    ${CMAKE_SOURCE_DIR}/src/dsp/AmpChain.cpp
 )
 
 target_include_directories(DarkDspTests PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/dsp)
@@ -36,6 +40,7 @@ target_link_libraries(DarkDspTests
         Catch2::Catch2WithMain
         juce::juce_dsp
         juce::juce_audio_processors
+        juce::juce_audio_formats
         juce::juce_recommended_config_flags
 )
 

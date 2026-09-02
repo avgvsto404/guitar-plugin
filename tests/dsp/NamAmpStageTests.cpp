@@ -70,6 +70,39 @@ TEST_CASE ("NamAmpStage sobrevive a troca de sample rate e buffer size", "[namam
     }
 }
 
+TEST_CASE ("NamAmpStage altera um seno de forma substancial (nao e passthrough)", "[namamp]")
+{
+    // Regressao direta pro relato "e como se nao tivessemos processado nada" -- assets/nam/
+    // nikolayevsk.nam e uma captura de cabecote de alto gain (referencia do usuario: "5150"),
+    // entao um seno de entrada deve sair bem distorcido/comprimido, nao uma copia quase igual.
+    NamAmpStage stage;
+    juce::dsp::ProcessSpec spec { 48000.0, 512, 1 };
+    stage.prepare (spec);
+
+    std::vector<float> input (512);
+    for (size_t i = 0; i < input.size(); ++i)
+        input[i] = 0.6f * std::sin (2.0f * juce::MathConstants<float>::pi * 220.0f * static_cast<float> (i) / 48000.0f);
+
+    // Processa alguns blocos iguais pra passar do transiente inicial (prewarm/receptive field
+    // da WaveNet) antes de medir -- so o ultimo bloco processado e comparado com a entrada.
+    std::vector<float> data;
+    for (int blockIdx = 0; blockIdx < 4; ++blockIdx)
+    {
+        data = input;
+        float* channels[] = { data.data() };
+        juce::dsp::AudioBlock<float> block (channels, 1, data.size());
+        stage.process (block);
+    }
+
+    double sumAbsDiff = 0.0;
+    for (size_t i = 0; i < input.size(); ++i)
+        sumAbsDiff += std::abs (static_cast<double> (data[i]) - static_cast<double> (input[i]));
+    const auto meanAbsDiff = sumAbsDiff / static_cast<double> (input.size());
+
+    INFO ("meanAbsDiff = " << meanAbsDiff);
+    REQUIRE (meanAbsDiff > 0.02);
+}
+
 TEST_CASE ("NamAmpStage nao mistura estado entre canais", "[namamp]")
 {
     NamAmpStage stage;

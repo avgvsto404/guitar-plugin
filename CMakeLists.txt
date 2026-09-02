@@ -40,7 +40,15 @@ file(GLOB NAM_CORE_SOURCES
     ${nam_core_SOURCE_DIR}/NAM/wavenet/*.cpp
 )
 
-add_library(NamCore STATIC ${NAM_CORE_SOURCES})
+# OBJECT (nao STATIC): varias arquiteturas da lib (ex. SlimmableContainer em NAM/container.cpp)
+# se auto-registram via um objeto estatico global (ver "Auto-register" no fim de container.cpp)
+# cujo construtor so roda se o .o correspondente entrar de fato no link. Uma lib STATIC (.a) so
+# puxa um .o do arquivo se algum simbolo dele for referenciado -- como nada no nosso codigo
+# referencia container.cpp diretamente (so chamamos nam::get_dsp() generico), o linker descarta
+# esse .o e o registro nunca roda, quebrando get_dsp() pra "SlimmableContainer" com o erro "No
+# config parser registered for architecture: SlimmableContainer". OBJECT forca todos os .o a
+# entrarem no link, sem essa poda por simbolo.
+add_library(NamCore OBJECT ${NAM_CORE_SOURCES})
 
 target_include_directories(NamCore
     PUBLIC

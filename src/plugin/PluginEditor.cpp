@@ -145,6 +145,13 @@ std::optional<juce::WebBrowserComponent::Resource> PluginEditor::provideResource
 
 juce::var PluginEditor::handleSetParam (const juce::Array<juce::var>& args)
 {
+    // Diagnostico temporario (mesmo esquema do log do WebView acima) -- pra confirmar se a UI
+    // esta mesmo chamando setParam("ampMode", ...) quando o usuario clica Rhythm/Lead, ja que
+    // o relato foi "nada muda de som ao trocar de modo".
+    logWebViewEvent ("handleSetParam chamado -- args.size()=" + juce::String (args.size())
+                      + (args.size() > 0 ? (" id=" + args[0].toString()) : juce::String())
+                      + (args.size() > 1 ? (" value=" + args[1].toString()) : juce::String()));
+
     if (args.size() < 2)
         return false;
 

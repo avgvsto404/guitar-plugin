@@ -28,5 +28,5 @@ private:
     juce::dsp::Convolution convolution { juce::dsp::Convolution::NonUniform { 512 } };
     juce::dsp::ProcessSpec currentSpec { 44100.0, 512, 2 };
     bool usingDefaultIr = true;
-    juce::String currentIrName = "default_cab_PLACEHOLDER";
+    juce::String currentIrName = "nikolayevsk";
 };

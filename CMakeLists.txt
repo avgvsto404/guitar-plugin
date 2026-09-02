@@ -20,6 +20,51 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
+# Motor de inferencia Neural Amp Modeler (assets/nam/nikolayevsk.nam, arquitetura
+# SlimmableContainer/"A2" -- ver src/dsp/NamAmpStage.h). O CMakeLists.txt da propria lib nao
+# expoe um target consumivel (so faz add_subdirectory(tools), que puxaria dependencias extras
+# que nao usamos, como o submodule AudioDSPTools) -- por isso so populamos o source dir aqui e
+# compilamos os .cpp relevantes num alvo proprio (NamCore) logo abaixo, em vez de dar
+# FetchContent_MakeAvailable/add_subdirectory na lib inteira.
+FetchContent_Declare(
+    nam_core
+    GIT_REPOSITORY https://github.com/sdatkinson/NeuralAmpModelerCore.git
+    GIT_TAG v0.5.4
+    GIT_SUBMODULES "Dependencies/eigen"
+    GIT_SHALLOW TRUE
+)
+FetchContent_Populate(nam_core)
+
+file(GLOB NAM_CORE_SOURCES
+    ${nam_core_SOURCE_DIR}/NAM/*.cpp
+    ${nam_core_SOURCE_DIR}/NAM/wavenet/*.cpp
+)
+
+add_library(NamCore STATIC ${NAM_CORE_SOURCES})
+
+target_include_directories(NamCore
+    PUBLIC
+        ${nam_core_SOURCE_DIR}/NAM
+        ${nam_core_SOURCE_DIR}/Dependencies/eigen
+        ${nam_core_SOURCE_DIR}/Dependencies/nlohmann
+)
+
+target_compile_features(NamCore PUBLIC cxx_std_20)
+
+target_compile_definitions(NamCore
+    PUBLIC
+        # Usa float (igual ao juce::dsp::AudioBlock<float> do resto da cadeia) em vez do double
+        # default da lib -- evita conversao por sample na fronteira com o NamAmpStage.
+        NAM_SAMPLE_FLOAT
+        # Path otimizado especifico pra arquitetura A2/SlimmableContainer -- exatamente o que
+        # assets/nam/nikolayevsk.nam usa (ver research feito na Fase de plano).
+        NAM_ENABLE_A2_FAST
+        # Evita conflito com macros min/max do windows.h ao compilar no Windows; inofensivo no
+        # macOS/Linux.
+        NOMINMAX
+        WIN32_LEAN_AND_MEAN
+)
+
 # ui/dist/index.html (React/TS via vite-plugin-singlefile, um unico HTML com JS/CSS inline)
 # precisa ser buildado ANTES de configurar este CMakeLists -- roda "npm install && npm run
 # build" dentro de ui/. Isso e feito como passo explicito (README.md / .github/workflows/
@@ -37,9 +82,9 @@ endif()
 # arquivos soltos ao lado do binario (ver PluginEditor.cpp).
 juce_add_binary_data(DarkDspBinaryData
     SOURCES
-        ${CMAKE_SOURCE_DIR}/assets/ir/default_cab_PLACEHOLDER.wav
+        ${CMAKE_SOURCE_DIR}/assets/ir/nikolayevsk.wav
+        ${CMAKE_SOURCE_DIR}/assets/nam/nikolayevsk.nam
         ${CMAKE_SOURCE_DIR}/ui/dist/index.html
-    # NOTA (T090): substitua o IR acima por um IR de cabinet real antes de qualquer release.
 )
 
 juce_add_plugin(NikolayevskDarkDsp
@@ -73,6 +118,7 @@ target_sources(NikolayevskDarkDsp
         src/dsp/PowerAmpSaturation.cpp
         src/dsp/CabinetLoader.cpp
         src/dsp/AmbienceStage.cpp
+        src/dsp/NamAmpStage.cpp
 )
 
 target_compile_definitions(NikolayevskDarkDsp
@@ -98,6 +144,7 @@ target_compile_definitions(NikolayevskDarkDsp
 target_link_libraries(NikolayevskDarkDsp
     PRIVATE
         DarkDspBinaryData
+        NamCore
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_gui_extra

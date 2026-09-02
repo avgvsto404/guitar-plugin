@@ -4,12 +4,16 @@
 #include "PreampStage.h"
 #include "ToneStack.h"
 #include "PowerAmpSaturation.h"
+#include "NamAmpStage.h"
 #include "CabinetLoader.h"
 #include "AmbienceStage.h"
 
 // Orquestra a cadeia completa (plan.md, "DSP Chain"):
-// NoiseGate -> TubeScreamerStage -> PreampStage -> ToneStack -> PowerAmpSaturation ->
-// CabinetLoader -> [AmbienceStage, so no Clean] -> Master (output trim).
+// NoiseGate -> TubeScreamerStage ->
+//   Clean: PreampStage -> ToneStack -> PowerAmpSaturation
+//   Rhythm/Lead: NamAmpStage (captura real do cabecote) -> ToneStack
+// -> CabinetLoader -> [AmbienceStage, Clean com chorus / Lead so delay+reverb] ->
+// Master (output trim).
 class AmpChain
 {
 public:
@@ -42,6 +46,7 @@ private:
     PreampStage preamp;
     ToneStack toneStack;
     PowerAmpSaturation powerAmp;
+    NamAmpStage namAmp;
     CabinetLoader cabinet;
     AmbienceStage ambience;
 

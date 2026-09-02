@@ -17,18 +17,15 @@ void CabinetLoader::reset()
 void CabinetLoader::loadDefaultIr()
 {
     convolution.loadImpulseResponse (
-        BinaryData::default_cab_PLACEHOLDER_wav,
-        static_cast<size_t> (BinaryData::default_cab_PLACEHOLDER_wavSize),
+        BinaryData::nikolayevsk_wav,
+        static_cast<size_t> (BinaryData::nikolayevsk_wavSize),
         juce::dsp::Convolution::Stereo::no,
         juce::dsp::Convolution::Trim::yes,
         0,
         juce::dsp::Convolution::Normalise::yes);
 
     usingDefaultIr = true;
-    // Nome curto pra UI -- o fato de ser placeholder (T090 em tasks.md) fica so no comentario
-    // do header, nao vaza pra tela; a UI mostra o qualificador "padrao embutido" via
-    // isUsingDefaultIr(), nao via string solta no nome.
-    currentIrName = "default_cab";
+    currentIrName = "nikolayevsk";
 }
 
 bool CabinetLoader::loadIrFromFile (const juce::File& file)

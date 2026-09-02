@@ -10,13 +10,20 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(DarkDspTests
     dsp/TubeScreamerStageTests.cpp
+    dsp/NamAmpStageTests.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/TubeScreamerStage.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/PreampStage.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/ToneStack.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/PowerAmpSaturation.cpp
+    ${CMAKE_SOURCE_DIR}/src/dsp/NamAmpStage.cpp
 )
 
 target_include_directories(DarkDspTests PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/dsp)
+
+# NamAmpStage.cpp inclui BinaryData.h (asset assets/nam/nikolayevsk.nam embutido) e os headers
+# da NeuralAmpModelerCore -- mesma lib/target (NamCore, ver CMakeLists.txt de raiz) usada pelo
+# plugin principal.
+target_link_libraries(DarkDspTests PRIVATE NamCore DarkDspBinaryData)
 
 # NOTA: um executavel JUCE fora de juce_add_plugin/juce_add_gui_app normalmente precisa de
 # JUCE_STANDALONE_APPLICATION=1 para linkar sem um main() gerado pelo framework (o Catch2

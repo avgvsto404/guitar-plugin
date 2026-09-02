@@ -6,6 +6,7 @@ void AmpChain::prepare (const juce::dsp::ProcessSpec& spec)
     preamp.prepare (spec);
     toneStack.prepare (spec);
     powerAmp.prepare (spec);
+    namAmp.prepare (spec);
     cabinet.prepare (spec);
     ambience.prepare (spec);
     masterGain.reset (spec.sampleRate, 0.02);
@@ -18,6 +19,7 @@ void AmpChain::reset()
     preamp.reset();
     toneStack.reset();
     powerAmp.reset();
+    namAmp.reset();
     cabinet.reset();
     ambience.reset();
     gateEnvelope = 0.0f;
@@ -28,6 +30,7 @@ void AmpChain::setMode (AmpMode mode)
     currentMode = mode;
     preamp.setMode (mode);
     powerAmp.setMode (mode);
+    ambience.setChorusEnabled (mode == AmpMode::Clean);
 }
 
 void AmpChain::setAmpGain (float value01) { preamp.setGain (value01); }
@@ -69,14 +72,30 @@ void AmpChain::process (juce::dsp::AudioBlock<float>& block)
 {
     applyNoiseGate (block);
     tubeScreamer.process (block);
-    preamp.process (block);
-    toneStack.process (block);
-    powerAmp.process (block);
+
+    if (currentMode == AmpMode::Clean)
+    {
+        preamp.process (block);
+        toneStack.process (block);
+        powerAmp.process (block);
+    }
+    else
+    {
+        // Rhythm/Lead: cabecote real via captura Neural Amp Modeler (assets/nam/nikolayevsk.nam)
+        // no lugar da cadeia analogica sintetica. O NAM ja captura o comportamento nao-linear
+        // completo do cabecote (preamp + power amp), entao PowerAmpSaturation e pulado aqui.
+        // ToneStack continua rodando depois, como EQ de shaping (Bass/Mid/Treble/Presence
+        // seguem funcionais, so nao ficam mais "no meio" do amp, ja que o NAM e monolitico).
+        namAmp.process (block);
+        toneStack.process (block);
+    }
+
     cabinet.process (block);
 
-    // Ambiencia (chorus/slapback/reverb curta) so no Clean -- Rhythm/Lead ficam secos e
-    // tight, sem lavar o hi-gain (FR-003, fusao djent/prog/power metal pedida pelo usuario).
-    if (currentMode == AmpMode::Clean)
+    // Ambiencia so em Clean (chorus+slapback+reverb) e Lead (so slapback+reverb, sem chorus --
+    // ver AmpChain::setMode/AmbienceStage::setChorusEnabled). Rhythm fica seco e tight, sem
+    // lavar o hi-gain (FR-003, fusao djent/prog/power metal pedida pelo usuario).
+    if (currentMode == AmpMode::Clean || currentMode == AmpMode::Lead)
         ambience.process (block);
 
     const auto numSamples = block.getNumSamples();

@@ -32,8 +32,11 @@ void AmbienceStage::reset()
 
 void AmbienceStage::process (juce::dsp::AudioBlock<float>& block)
 {
-    juce::dsp::ProcessContextReplacing<float> chorusContext (block);
-    chorus.process (chorusContext);
+    if (chorusEnabled)
+    {
+        juce::dsp::ProcessContextReplacing<float> chorusContext (block);
+        chorus.process (chorusContext);
+    }
 
     const auto numSamples = block.getNumSamples();
     const auto numChannels = block.getNumChannels();

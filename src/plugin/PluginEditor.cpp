@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
+#include "../util/DiagnosticLog.h"
 
 namespace
 {
@@ -11,10 +12,7 @@ namespace
     // nunca chamado? chamado mas com erro? erro de rede real do WebView2?).
     void logWebViewEvent (const juce::String& message)
     {
-        const auto logFile = juce::File::getSpecialLocation (juce::File::tempDirectory)
-                                  .getChildFile ("NikolayevskDarkDSP_webview.log");
-        logFile.appendText (juce::Time::getCurrentTime().toString (true, true, true, true)
-                                 + "  " + message + "\n");
+        logDiagnosticEvent ("WebView", message);
     }
 
     class DiagnosticWebBrowser : public juce::WebBrowserComponent
@@ -104,7 +102,15 @@ PluginEditor::PluginEditor (PluginProcessor& processorRef)
                         {
                             const auto file = fc.getResult();
                             if (file != juce::File {})
-                                pluginProcessor.loadIrFromFile (file); // false = mantem IR anterior (edge case da spec)
+                            {
+                                const auto success = pluginProcessor.loadIrFromFile (file); // false = mantem IR anterior (edge case da spec)
+                                logDiagnosticEvent ("IR", "browseForIR -- arquivo=" + file.getFullPathName()
+                                                              + " sucesso=" + (success ? "sim" : "nao"));
+                            }
+                            else
+                            {
+                                logDiagnosticEvent ("IR", "browseForIR -- usuario cancelou o dialogo");
+                            }
 
                             completion (buildIrStateVar());
                         });
@@ -181,7 +187,9 @@ juce::var PluginEditor::handleLoadIr (const juce::Array<juce::var>& args)
         return buildIrStateVar();
 
     const juce::File file (args[0].toString());
-    pluginProcessor.loadIrFromFile (file); // false = mantem IR anterior (edge case da spec)
+    const auto success = pluginProcessor.loadIrFromFile (file); // false = mantem IR anterior (edge case da spec)
+    logDiagnosticEvent ("IR", "handleLoadIr -- arquivo=" + file.getFullPathName()
+                                  + " sucesso=" + (success ? "sim" : "nao"));
     return buildIrStateVar();
 }
 

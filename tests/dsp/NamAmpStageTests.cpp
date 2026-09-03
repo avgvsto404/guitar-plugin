@@ -121,3 +121,40 @@ TEST_CASE ("NamAmpStage nao mistura estado entre canais", "[namamp]")
     for (auto sample : right)
         REQUIRE (std::abs (sample) < 0.05f);
 }
+
+TEST_CASE ("NamAmpStage aplica compensacao de loudness (nao fica baixo demais)", "[namamp]")
+{
+    // Regressao pro relato "som capenga/fraco em Rhythm/Lead": sem compensar a loudness de
+    // treino do .nam (metadata "loudness", ~-24dB no nikolayevsk.nam), o motor processa
+    // corretamente mas sai bem mais baixo que a entrada. Mesma formula do modo "Normalized"
+    // do plugin oficial NeuralAmpModelerPlugin (targetLoudness = -18dB).
+    NamAmpStage stage;
+    juce::dsp::ProcessSpec spec { 48000.0, 512, 1 };
+    stage.prepare (spec);
+
+    std::vector<float> input (512);
+    for (size_t i = 0; i < input.size(); ++i)
+        input[i] = 0.6f * std::sin (2.0f * juce::MathConstants<float>::pi * 220.0f * static_cast<float> (i) / 48000.0f);
+
+    std::vector<float> data;
+    for (int blockIdx = 0; blockIdx < 20; ++blockIdx)
+    {
+        data = input;
+        float* channels[] = { data.data() };
+        juce::dsp::AudioBlock<float> block (channels, 1, data.size());
+        stage.process (block);
+    }
+
+    double sumSqOut = 0.0, sumSqIn = 0.0;
+    for (size_t i = 0; i < data.size(); ++i)
+    {
+        sumSqOut += static_cast<double> (data[i]) * data[i];
+        sumSqIn += static_cast<double> (input[i]) * input[i];
+    }
+    const auto outRms = std::sqrt (sumSqOut / data.size());
+    const auto inRms = std::sqrt (sumSqIn / data.size());
+    const auto ratioDb = 20.0 * std::log10 (outRms / inRms);
+
+    INFO ("ratioDb = " << ratioDb);
+    REQUIRE (ratioDb > -10.0);
+}

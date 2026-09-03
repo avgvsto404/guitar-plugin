@@ -21,8 +21,8 @@ private:
 
     juce::dsp::Chorus<float> chorus;
     juce::dsp::DelayLine<float> delayLine { 96000 };
-    static constexpr float delayFeedback = 0.16f;
-    static constexpr float delayMix = 0.14f;
+    static constexpr float delayFeedback = 0.2f;
+    static constexpr float delayMix = 0.2f;
 
     juce::Reverb reverb;
 };

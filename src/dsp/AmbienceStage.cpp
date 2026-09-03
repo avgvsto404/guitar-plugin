@@ -14,10 +14,10 @@ void AmbienceStage::prepare (const juce::dsp::ProcessSpec& spec)
     delayLine.setDelay (static_cast<float> (spec.sampleRate * 0.11)); // ~110ms, slapback
 
     juce::Reverb::Parameters params;
-    params.roomSize = 0.28f;
-    params.damping = 0.55f;
-    params.wetLevel = 0.16f;
-    params.dryLevel = 0.9f;
+    params.roomSize = 0.32f;
+    params.damping = 0.5f;
+    params.wetLevel = 0.24f;
+    params.dryLevel = 0.85f;
     params.width = 0.9f;
     reverb.setParameters (params);
     reverb.setSampleRate (spec.sampleRate);

@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "../util/DiagnosticLog.h"
 
 PluginProcessor::PluginProcessor()
     : juce::AudioProcessor (BusesProperties()
@@ -94,11 +95,15 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xml (getXmlFromBinary (data, sizeInBytes));
     if (xml == nullptr)
+    {
+        logDiagnosticEvent ("State", "setStateInformation -- xml nulo (sizeInBytes=" + juce::String (sizeInBytes) + "), ignorando");
         return;
+    }
 
     apvts.replaceState (juce::ValueTree::fromXml (*xml));
 
     const auto irPath = xml->getStringAttribute ("loadedIrPath");
+    logDiagnosticEvent ("State", "setStateInformation -- loadedIrPath salvo='" + irPath + "'");
     if (irPath.isNotEmpty())
     {
         // Fallback do edge case da spec: se o IR salvo no preset nao existir mais nesta

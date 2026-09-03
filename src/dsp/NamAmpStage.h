@@ -37,4 +37,12 @@ private:
     // filosofia de fallback do CabinetLoader).
     std::vector<std::unique_ptr<nam::DSP>> models;
     std::vector<std::vector<float>> scratchBuffers;
+
+    // Ganho de saida (linear) pra compensar a loudness de treino do .nam -- sem isso, o motor
+    // processa/distorce o sinal corretamente mas sai bem mais baixo que a entrada (medido
+    // ~-13dB com nikolayevsk.nam), o que da a sensacao de "nao esta pegando o som do cabecote".
+    // Mesma formula do modo "Normalized" do plugin oficial NeuralAmpModelerPlugin
+    // (NeuralAmpModeler.cpp, _SetOutputGain(), targetLoudness = -18dB): ganhoDB = -18 -
+    // loudness_do_modelo.
+    float outputGainLinear = 1.0f;
 };

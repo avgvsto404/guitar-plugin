@@ -1,5 +1,6 @@
 #include "NamAmpStage.h"
 #include "BinaryData.h"
+#include "../util/DiagnosticLog.h"
 
 #include <algorithm>
 
@@ -10,6 +11,10 @@
 
 namespace
 {
+// Diagnostico temporario -- createModel() cai pra passthrough silenciosamente se o parse do
+// .nam falhar, e sem log nenhuma maquina consegue distinguir "modelo carregou e soa fraco" de
+// "modelo nunca carregou". Ver relato "som capenga em Rhythm/Lead, como se nao tivesse
+// processado nada".
 std::unique_ptr<nam::DSP> createModel()
 {
     try
@@ -26,8 +31,9 @@ std::unique_ptr<nam::DSP> createModel()
 
         return model;
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+        logDiagnosticEvent ("NAM", juce::String ("createModel falhou -- ") + e.what());
         return nullptr;
     }
 }
@@ -43,16 +49,43 @@ void NamAmpStage::prepare (const juce::dsp::ProcessSpec& spec)
 
     models.clear();
     scratchBuffers.clear();
+    outputGainLinear = 1.0f;
+
+    bool outputGainComputed = false;
+    int loadedCount = 0;
 
     for (juce::uint32 ch = 0; ch < spec.numChannels; ++ch)
     {
         auto model = createModel();
         if (model != nullptr)
+        {
+            ++loadedCount;
             model->Reset (sampleRate, maxBlockSize);
+
+            // So precisa calcular uma vez -- todos os canais carregam o mesmo asset, logo a
+            // mesma loudness de treino.
+            if (! outputGainComputed && model->HasLoudness())
+            {
+                constexpr double targetLoudnessDb = -18.0;
+                const auto gainDb = static_cast<float> (targetLoudnessDb - model->GetLoudness());
+                outputGainLinear = juce::Decibels::decibelsToGain (gainDb);
+                outputGainComputed = true;
+            }
+        }
 
         models.push_back (std::move (model));
         scratchBuffers.emplace_back (static_cast<size_t> (maxBlockSize), 0.0f);
     }
+
+    // Resumo de uma linha so, cobrindo os dois jeitos de "deu errado": nenhum canal carregou
+    // (loadedCount == 0, ve o log de createModel acima pro motivo), ou carregou mas sem
+    // metadata de loudness (outputGainComputed == false -> compensacao fica em 1.0x/0dB, som
+    // sai baixo igual ao bug original).
+    logDiagnosticEvent ("NAM", "prepare -- canais=" + juce::String (spec.numChannels)
+                                   + " carregados=" + juce::String (loadedCount)
+                                   + " sampleRate=" + juce::String (sampleRate)
+                                   + " loudnessCompensada=" + (outputGainComputed ? "sim" : "nao")
+                                   + " outputGainDb=" + juce::String (juce::Decibels::gainToDecibels (outputGainLinear), 2));
 }
 
 void NamAmpStage::reset()
@@ -81,5 +114,8 @@ void NamAmpStage::process (juce::dsp::AudioBlock<float>& block)
         float* inputPtr = scratch.data();
         float* outputPtr = data;
         model->process (&inputPtr, &outputPtr, static_cast<int> (numSamples));
+
+        for (int i = 0; i < static_cast<int> (numSamples); ++i)
+            data[i] *= outputGainLinear;
     }
 }

@@ -7,16 +7,51 @@
 #include "dsp.h"
 #include "get_dsp.h"
 #include "slimmable.h"
+#include "container.h"
+#include "convnet.h"
+#include "lstm.h"
+#include "linear.h"
+#include "wavenet/model.h"
+#include "model_config.h"
 #include "json.hpp"
 
 namespace
 {
-// Diagnostico temporario -- createModel() cai pra passthrough silenciosamente se o parse do
-// .nam falhar, e sem log nenhuma maquina consegue distinguir "modelo carregou e soa fraco" de
-// "modelo nunca carregou". Ver relato "som capenga em Rhythm/Lead, como se nao tivesse
-// processado nada".
+// Toda arquitetura da NAM core lib (container.cpp, convnet.cpp, lstm.cpp, linear.cpp,
+// wavenet/model.cpp) se auto-registra no ConfigParserRegistry via um objeto estatico global no
+// fim do respectivo .cpp -- mas nada no resto do programa referencia simbolo nenhum desses
+// arquivos diretamente (get_dsp() so consulta o registry em runtime pelo nome da arquitetura).
+// Isso faz o linker podar o .o inteiro em QUALQUER estagio de link que va por biblioteca
+// estatica (o NikolayevskDarkDsp "shared code" que o juce_add_plugin() gera e' STATIC, e liga
+// assim no target por formato -- ver _juce_link_plugin_wrapper em JUCEUtils.cmake), mesmo com
+// NamCore como OBJECT library (CMakeLists.txt) garantindo que o .o entre no primeiro link.
+// Resultado: "No config parser registered for architecture: SlimmableContainer" (e teria sido
+// "WaveNet" logo em seguida, ja que os submodelos de nikolayevsk.nam sao WaveNet) e
+// createModel() sempre falha (carregados=0), plugin fica passthrough puro em Rhythm/Lead. Em
+// vez de brigar com poda de linker em varios niveis, registramos explicito aqui -- este .cpp
+// e' garantido no link porque NamAmpStage e' chamado direto por AmpChain. Registramos as 5
+// (nao so SlimmableContainer+WaveNet, que sao as usadas hoje) pra essa classe de bug nao voltar
+// se o .nam for trocado por um com outra arquitetura de submodelo.
+void ensureNamParsersRegistered()
+{
+    auto& registry = nam::ConfigParserRegistry::instance();
+    const auto registerIfMissing = [&registry] (const char* name, nam::ConfigParserFunction parser)
+    {
+        if (! registry.has (name))
+            registry.registerParser (name, std::move (parser));
+    };
+
+    registerIfMissing ("SlimmableContainer", nam::container::create_config);
+    registerIfMissing ("WaveNet", nam::wavenet::create_config);
+    registerIfMissing ("ConvNet", nam::convnet::create_config);
+    registerIfMissing ("LSTM", nam::lstm::create_config);
+    registerIfMissing ("Linear", nam::linear::create_config);
+}
+
 std::unique_ptr<nam::DSP> createModel()
 {
+    ensureNamParsersRegistered();
+
     try
     {
         const auto json = nlohmann::json::parse (BinaryData::nikolayevsk_nam,

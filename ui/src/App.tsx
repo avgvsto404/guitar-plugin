@@ -63,7 +63,7 @@ export default function App() {
           />
           <Cabinet ir={ir} onBrowseForIr={handleBrowseForIr} error={irError} />
         </div>
-        <footer className="dark-dsp-footer">NIKOLAYEVSK DARK DSP — SIGNATURE AMP SIMULATOR</footer>
+        <footer className="dark-dsp-footer">AVGVSTO DARK DSP — SIGNATURE AMP SIMULATOR</footer>
       </div>
     </div>
   );

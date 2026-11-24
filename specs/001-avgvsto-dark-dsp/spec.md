@@ -1,12 +1,12 @@
-# Feature Specification: Nikolayevsk DARK DSP
+# Feature Specification: AVGVSTO DARK DSP
 
-**Feature Branch**: `001-nikolayevsk-dark-dsp`
+**Feature Branch**: `001-avgvsto-dark-dsp`
 **Created**: 2026-08-24
 **Status**: Draft
-**Author**: Guilherme Augusto (Nikolayevsk)
+**Author**: Guilherme Augusto (AVGVSTO)
 
 **Input (resumo do pedido original)**: Plugin VST3 de guitarra, open source e gratuito, signature do
-Nikolayevsk. Fusão sonora entre um amp britânico de alto gain estilo Marshall JCM800 e um amp
+AVGVSTO. Fusão sonora entre um amp britânico de alto gain estilo Marshall JCM800 e um amp
 americano estilo Mesa Boogie. Três modos — Clean, Rhythm, Lead. Cadeia completa: pedal
 overdrive estilo Tube Screamer → cabeçote → caixa (cab) → microfone/IR loader. Identidade
 visual gótica/rústica, alinhada a prog/power metal. Multiplataforma (Windows + macOS), VST3,
@@ -17,8 +17,8 @@ plug-and-play (zero configuração para sonar bem no preset default).
 ## User Scenarios & Testing *(mandatory)*
 
 ### Primary User Story
-Um guitarrista de prog/power metal (o próprio Nikolayevsk ou qualquer usuário que baixe o
-plugin) abre sua DAW, carrega o "Nikolayevsk DARK DSP" em uma pista de guitarra, seleciona o
+Um guitarrista de prog/power metal (o próprio AVGVSTO ou qualquer usuário que baixe o
+plugin) abre sua DAW, carrega o "AVGVSTO DARK DSP" em uma pista de guitarra, seleciona o
 modo **Lead**, toca sem tocar em mais nenhum parâmetro, e já ouve um tom de solo com sustain,
 saturação e definição adequados para gravação ou prática — sem precisar entender amp
 modeling, impulse responses ou tone stacks.
@@ -147,7 +147,7 @@ racional técnico de cada característica):
   indicação visual de microfone posicionado), **pedal** (stompbox Tube Screamer-like, footswitch
   clicável).
 - **FR-V03**: Identidade visual deve ser compatível com o trabalho de Haruna Lamberti (direção
-  de arte do projeto Nikolayevsk) — a UI deve ter espaço reservado para asset(s) de logo/arte
+  de arte do projeto AVGVSTO) — a UI deve ter espaço reservado para asset(s) de logo/arte
   fornecidos por ela (não gerado por IA como arte final de marca).
 - **FR-V04**: Motion/feedback visual (LEDs de footswitch, VU-meter ou similar) deve reforçar a
   sensação de hardware físico, não de plugin "flat" genérico.
@@ -172,5 +172,5 @@ racional técnico de cada característica):
 - [x] Sem detalhe de implementação nesta camada (fica em `plan.md`)
 - [x] Ambiguidade "fusão de timbre" resolvida em critério objetivo (tabela Voicing Target)
 - [x] Risco de trademark identificado e endereçado como requisito de naming
-- [ ] Validado com escuta A/B por Nikolayevsk contra referências reais (pendente — Fase de QA sonoro)
+- [ ] Validado com escuta A/B por AVGVSTO contra referências reais (pendente — Fase de QA sonoro)
 - [ ] Aprovado para avançar para `plan.md` (pendente confirmação do usuário)

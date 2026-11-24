@@ -8,10 +8,10 @@ void CabinetLoader::prepare (const juce::dsp::ProcessSpec& spec)
     currentSpec = spec;
     convolution.prepare (spec);
 
-    // Sanity check do embed -- se o BinaryData::nikolayevsk_wav viesse vazio/corrompido (ex.:
+    // Sanity check do embed -- se o BinaryData::avgvsto_wav viesse vazio/corrompido (ex.:
     // problema de build especifico de plataforma), e melhor saber disso aqui do que so notar
     // "IR nao pega o som direito" depois.
-    logDiagnosticEvent ("IR", "prepare -- BinaryData nikolayevsk_wavSize=" + juce::String (BinaryData::nikolayevsk_wavSize)
+    logDiagnosticEvent ("IR", "prepare -- BinaryData avgvsto_wavSize=" + juce::String (BinaryData::avgvsto_wavSize)
                                   + " sampleRate=" + juce::String (spec.sampleRate)
                                   + " numChannels=" + juce::String (spec.numChannels));
 
@@ -26,21 +26,21 @@ void CabinetLoader::reset()
 void CabinetLoader::loadDefaultIr()
 {
     convolution.loadImpulseResponse (
-        BinaryData::nikolayevsk_wav,
-        static_cast<size_t> (BinaryData::nikolayevsk_wavSize),
+        BinaryData::avgvsto_wav,
+        static_cast<size_t> (BinaryData::avgvsto_wavSize),
         juce::dsp::Convolution::Stereo::no,
         juce::dsp::Convolution::Trim::yes,
         0,
         juce::dsp::Convolution::Normalise::yes);
 
     usingDefaultIr = true;
-    currentIrName = "nikolayevsk";
+    currentIrName = "avgvsto";
 
     // juce::dsp::Convolution::loadImpulseResponse nao retorna sucesso/falha -- entao "logamos
-    // que tentamos" e nao "logamos que deu certo". Se nikolayevsk_wavSize (acima) estiver
+    // que tentamos" e nao "logamos que deu certo". Se avgvsto_wavSize (acima) estiver
     // plausivel (dezenas/centenas de KB) e mesmo assim o cabinet nao colorir o som, o suspeito
     // deixa de ser o carregamento e passa a ser o proprio processamento da convolucao.
-    logDiagnosticEvent ("IR", "loadDefaultIr -- convolution.loadImpulseResponse chamado (nikolayevsk)");
+    logDiagnosticEvent ("IR", "loadDefaultIr -- convolution.loadImpulseResponse chamado (avgvsto)");
 }
 
 bool CabinetLoader::loadIrFromFile (const juce::File& file)

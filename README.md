@@ -1,14 +1,14 @@
-# Nikolayevsk DARK DSP
+# AVGVSTO DARK DSP
 
 <img width="1279" height="775" alt="image" src="https://github.com/user-attachments/assets/0c33ade7-5924-496f-8b9e-d82472984886" />
 
 Plugin de guitarra VST3, **gratuito e open source (GPLv3)**, signature do
-[Nikolayevsk](https://github.com/nikolayevsk404) — guitarrista brasileiro de progressive power
+[AVGVSTO](https://github.com/avgvsto404) — guitarrista brasileiro de progressive power
 metal. Fusão de voicing entre um amp britânico de alto gain e um amp americano de gain em
 cascata, com pedal overdrive, cabinet/IR loader e identidade visual gótica/rústica.
 
 > Projeto em desenvolvimento inicial (alpha), seguindo Spec-Driven Development — a
-> implementação segue os documentos em `specs/001-nikolayevsk-dark-dsp/`. Já compila e carrega
+> implementação segue os documentos em `specs/001-avgvsto-dark-dsp/`. Já compila e carrega
 > como VST3 (validado no Reaper/macOS); ainda faltam o IR de cabinet real e a identidade
 > visual final (ver `tasks.md`, itens T090/T091).
 
@@ -22,13 +22,13 @@ Guitarra → Pedal (Tube Screamer-like) → Cabeçote (Clean | Rhythm | Lead) �
 
 Todo o desenvolvimento parte de specs versionadas antes do código:
 
-- [`spec.md`](specs/001-nikolayevsk-dark-dsp/spec.md) — o quê e por quê (requisitos,
+- [`spec.md`](specs/001-avgvsto-dark-dsp/spec.md) — o quê e por quê (requisitos,
   critérios de aceite, voicing target, identidade visual).
-- [`plan.md`](specs/001-nikolayevsk-dark-dsp/plan.md) — como (arquitetura, stack, estrutura
+- [`plan.md`](specs/001-avgvsto-dark-dsp/plan.md) — como (arquitetura, stack, estrutura
   de projeto).
-- [`research.md`](specs/001-nikolayevsk-dark-dsp/research.md) — racional técnico por trás de
+- [`research.md`](specs/001-avgvsto-dark-dsp/research.md) — racional técnico por trás de
   cada decisão de DSP e de integração UI↔áudio.
-- [`tasks.md`](specs/001-nikolayevsk-dark-dsp/tasks.md) — quebra executável de tarefas.
+- [`tasks.md`](specs/001-avgvsto-dark-dsp/tasks.md) — quebra executável de tarefas.
 
 ## Stack
 
@@ -45,7 +45,7 @@ código-fonte de qualquer versão distribuída permaneça aberto sob a mesma lic
 ## Identidade visual
 
 Direção de arte por Haruna Lamberti. Estética gótica/rústica alinhada a prog/power metal —
-detalhes em [`spec.md`](specs/001-nikolayevsk-dark-dsp/spec.md#identidade-visual-mandatory).
+detalhes em [`spec.md`](specs/001-avgvsto-dark-dsp/spec.md#identidade-visual-mandatory).
 
 ## Build
 

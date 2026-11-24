@@ -58,7 +58,7 @@ PluginEditor::PluginEditor (PluginProcessor& processorRef)
     // Program Files, sem permissao de escrita), a criacao do ambiente falha silenciosamente e
     // cai pro IE. Apontando pra uma pasta com permissao de escrita garantida.
     const auto webView2UserDataFolder = juce::File::getSpecialLocation (juce::File::tempDirectory)
-                                             .getChildFile ("NikolayevskDarkDSP")
+                                             .getChildFile ("AvgvstoDarkDSP")
                                              .getChildFile ("WebView2UserData");
     webView2UserDataFolder.createDirectory();
     logWebViewEvent ("webView2UserDataFolder = " + webView2UserDataFolder.getFullPathName()

@@ -22,11 +22,11 @@ namespace
 // fim do respectivo .cpp -- mas nada no resto do programa referencia simbolo nenhum desses
 // arquivos diretamente (get_dsp() so consulta o registry em runtime pelo nome da arquitetura).
 // Isso faz o linker podar o .o inteiro em QUALQUER estagio de link que va por biblioteca
-// estatica (o NikolayevskDarkDsp "shared code" que o juce_add_plugin() gera e' STATIC, e liga
+// estatica (o AvgvstoDarkDsp "shared code" que o juce_add_plugin() gera e' STATIC, e liga
 // assim no target por formato -- ver _juce_link_plugin_wrapper em JUCEUtils.cmake), mesmo com
 // NamCore como OBJECT library (CMakeLists.txt) garantindo que o .o entre no primeiro link.
 // Resultado: "No config parser registered for architecture: SlimmableContainer" (e teria sido
-// "WaveNet" logo em seguida, ja que os submodelos de nikolayevsk.nam sao WaveNet) e
+// "WaveNet" logo em seguida, ja que os submodelos de avgvsto.nam sao WaveNet) e
 // createModel() sempre falha (carregados=0), plugin fica passthrough puro em Rhythm/Lead. Em
 // vez de brigar com poda de linker em varios niveis, registramos explicito aqui -- este .cpp
 // e' garantido no link porque NamAmpStage e' chamado direto por AmpChain. Registramos as 5
@@ -54,11 +54,11 @@ std::unique_ptr<nam::DSP> createModel()
 
     try
     {
-        const auto json = nlohmann::json::parse (BinaryData::nikolayevsk_nam,
-                                                   BinaryData::nikolayevsk_nam + BinaryData::nikolayevsk_namSize);
+        const auto json = nlohmann::json::parse (BinaryData::avgvsto_nam,
+                                                   BinaryData::avgvsto_nam + BinaryData::avgvsto_namSize);
         auto model = nam::get_dsp (json);
 
-        // assets/nam/nikolayevsk.nam e um SlimmableContainer com 2 sub-modelos (leve/full
+        // assets/nam/avgvsto.nam e um SlimmableContainer com 2 sub-modelos (leve/full
         // quality) -- por padrao a lib ativa o mais leve (ContainerModel::_active_index{0});
         // forcamos sempre o de melhor qualidade.
         if (auto* slimmable = dynamic_cast<nam::SlimmableModel*> (model.get()))

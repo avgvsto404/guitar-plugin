@@ -1,4 +1,4 @@
-# Research Notes: Nikolayevsk DARK DSP
+# Research Notes: AVGVSTO DARK DSP
 
 Estas notas fundamentam as decisões de `plan.md`. Não é literatura acadêmica — é o racional
 técnico mínimo para justificar por que cada estágio de DSP existe e por que é modelado assim.

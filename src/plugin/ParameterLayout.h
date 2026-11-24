@@ -5,7 +5,7 @@
 // Contrato unico de parametros entre C++ (APVTS) e a UI React/TS
 // (ui/src/bridge/nativeBridge.ts). Os IDs abaixo DEVEM ser mantidos em sincronia manualmente
 // com PluginParams em nativeBridge.ts -- nao ha checagem automatica entre os dois lados ainda
-// (ver Open Question / risco em specs/001-nikolayevsk-dark-dsp/research.md).
+// (ver Open Question / risco em specs/001-avgvsto-dark-dsp/research.md).
 
 namespace ParamId
 {

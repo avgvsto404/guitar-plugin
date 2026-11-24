@@ -3,7 +3,7 @@
 #include <cmath>
 #include "NamAmpStage.h"
 
-// Cobre o motor NAM (assets/nam/nikolayevsk.nam) usado em Rhythm/Lead: robustez a troca de
+// Cobre o motor NAM (assets/nam/avgvsto.nam) usado em Rhythm/Lead: robustez a troca de
 // sample rate/buffer size (paridade com NFR-003, ja cobrado pro CabinetLoader), ausencia de
 // NaN/Inf e independencia de estado entre canais.
 
@@ -73,7 +73,7 @@ TEST_CASE ("NamAmpStage sobrevive a troca de sample rate e buffer size", "[namam
 TEST_CASE ("NamAmpStage altera um seno de forma substancial (nao e passthrough)", "[namamp]")
 {
     // Regressao direta pro relato "e como se nao tivessemos processado nada" -- assets/nam/
-    // nikolayevsk.nam e uma captura de cabecote de alto gain (referencia do usuario: "5150"),
+    // avgvsto.nam e uma captura de cabecote de alto gain (referencia do usuario: "5150"),
     // entao um seno de entrada deve sair bem distorcido/comprimido, nao uma copia quase igual.
     NamAmpStage stage;
     juce::dsp::ProcessSpec spec { 48000.0, 512, 1 };
@@ -125,7 +125,7 @@ TEST_CASE ("NamAmpStage nao mistura estado entre canais", "[namamp]")
 TEST_CASE ("NamAmpStage aplica compensacao de loudness (nao fica baixo demais)", "[namamp]")
 {
     // Regressao pro relato "som capenga/fraco em Rhythm/Lead": sem compensar a loudness de
-    // treino do .nam (metadata "loudness", ~-24dB no nikolayevsk.nam), o motor processa
+    // treino do .nam (metadata "loudness", ~-24dB no avgvsto.nam), o motor processa
     // corretamente mas sai bem mais baixo que a entrada. Mesma formula do modo "Normalized"
     // do plugin oficial NeuralAmpModelerPlugin (targetLoudness = -18dB).
     NamAmpStage stage;

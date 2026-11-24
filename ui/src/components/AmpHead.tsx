@@ -30,7 +30,7 @@ export function AmpHead({ params, mode, onModeChange, onParamChange }: AmpHeadPr
       <div className="strap" />
 
       <div className="head-top">
-        <span className="brand">Nikolayevsk · DARK DSP · Signature Amp Simulator</span>
+        <span className="brand">AVGVSTO · DARK DSP · Signature Amp Simulator</span>
         <ModeSelector mode={mode} onChange={onModeChange} />
       </div>
 
@@ -39,7 +39,7 @@ export function AmpHead({ params, mode, onModeChange, onParamChange }: AmpHeadPr
 
         <div className="nameplate">
           <div className="wordmark">
-            Nikolayevsk <span>·</span> DARK DSP
+            AVGVSTO <span>·</span> DARK DSP
           </div>
         </div>
 

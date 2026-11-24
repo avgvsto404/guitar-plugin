@@ -1,4 +1,4 @@
-// Contrato JS<->C++ definido em specs/001-nikolayevsk-dark-dsp/research.md (secao 4) e
+// Contrato JS<->C++ definido em specs/001-avgvsto-dark-dsp/research.md (secao 4) e
 // plan.md (ParameterLayout). Mantenha os IDs de parametro em sincronia com
 // src/plugin/ParameterLayout.h -- nao ha checagem automatica entre os dois lados ainda.
 //

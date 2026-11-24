@@ -5,7 +5,7 @@ espectro como uma caixa 4x12 tipica (corte de sub-graves, ressonancia do cone, p
 de microfone, rolloff de agudos), mais um punhado de micro-reflexoes e um envelope de
 decaimento em dois estagios.
 
-Isso AINDA NAO substitui T090 (specs/001-nikolayevsk-dark-dsp/tasks.md): um IR real,
+Isso AINDA NAO substitui T090 (specs/001-avgvsto-dark-dsp/tasks.md): um IR real,
 capturado ou com licenca compativel, precisa entrar antes de qualquer release publico. Mas
 soa como "caixa+mic", nao como ruido cru -- resolve a reclamacao de "esta saindo direto do
 cabecote sem caixa".

@@ -4,7 +4,7 @@
 #include "PluginProcessor.h"
 
 // Host do WebView (React/TS embutido) + ponte nativa. Contrato de mensagens documentado em
-// ui/src/bridge/nativeBridge.ts e specs/001-nikolayevsk-dark-dsp/research.md secao 4.
+// ui/src/bridge/nativeBridge.ts e specs/001-avgvsto-dark-dsp/research.md secao 4.
 //
 // ATENCAO: a API de juce::WebBrowserComponent usada aqui (withNativeIntegrationEnabled,
 // withResourceProvider, withNativeFunction, NativeFunctionCompletion) e a forma mais comum

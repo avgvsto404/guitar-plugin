@@ -81,7 +81,7 @@ void AmpChain::process (juce::dsp::AudioBlock<float>& block)
     }
     else
     {
-        // Rhythm/Lead: cabecote real via captura Neural Amp Modeler (assets/nam/nikolayevsk.nam)
+        // Rhythm/Lead: cabecote real via captura Neural Amp Modeler (assets/nam/avgvsto.nam)
         // no lugar da cadeia analogica sintetica. O NAM ja captura o comportamento nao-linear
         // completo do cabecote (preamp + power amp), entao PowerAmpSaturation e pulado aqui.
         // ToneStack continua rodando depois, como EQ de shaping (Bass/Mid/Treble/Presence

@@ -9,7 +9,7 @@ namespace nam
 class DSP;
 }
 
-// Motor de cabecote via captura Neural Amp Modeler (assets/nam/nikolayevsk.nam), usado em
+// Motor de cabecote via captura Neural Amp Modeler (assets/nam/avgvsto.nam), usado em
 // Rhythm/Lead no lugar de PreampStage+PowerAmpSaturation (AmpChain.cpp decide o roteamento;
 // Clean continua na cadeia analogica). Cada canal tem sua propria instancia de nam::DSP -- a
 // lib guarda estado de convolucao interno por instancia, entao compartilhar uma so entre
@@ -40,7 +40,7 @@ private:
 
     // Ganho de saida (linear) pra compensar a loudness de treino do .nam -- sem isso, o motor
     // processa/distorce o sinal corretamente mas sai bem mais baixo que a entrada (medido
-    // ~-13dB com nikolayevsk.nam), o que da a sensacao de "nao esta pegando o som do cabecote".
+    // ~-13dB com avgvsto.nam), o que da a sensacao de "nao esta pegando o som do cabecote".
     // Mesma formula do modo "Normalized" do plugin oficial NeuralAmpModelerPlugin
     // (NeuralAmpModeler.cpp, _SetOutputGain(), targetLoudness = -18dB): ganhoDB = -18 -
     // loudness_do_modelo.

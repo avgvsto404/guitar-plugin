@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(NikolayevskDarkDsp VERSION 0.1.0 LANGUAGES C CXX)
+project(AvgvstoDarkDsp VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,7 @@ include(FetchContent)
 # build (T001) -- este valor e um ponto de partida, nao uma garantia de compatibilidade com
 # o restante do CMakeLists (em especial a API de WebBrowserComponent usada em
 # src/plugin/PluginEditor.cpp, que evoluiu entre releases pontuais do JUCE 8. Ver
-# specs/001-nikolayevsk-dark-dsp/research.md secao 4).
+# specs/001-avgvsto-dark-dsp/research.md secao 4).
 FetchContent_Declare(
     JUCE
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
@@ -20,7 +20,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
-# Motor de inferencia Neural Amp Modeler (assets/nam/nikolayevsk.nam, arquitetura
+# Motor de inferencia Neural Amp Modeler (assets/nam/avgvsto.nam, arquitetura
 # SlimmableContainer/"A2" -- ver src/dsp/NamAmpStage.h). O CMakeLists.txt da propria lib nao
 # expoe um target consumivel (so faz add_subdirectory(tools), que puxaria dependencias extras
 # que nao usamos, como o submodule AudioDSPTools) -- por isso so populamos o source dir aqui e
@@ -65,7 +65,7 @@ target_compile_definitions(NamCore
         # default da lib -- evita conversao por sample na fronteira com o NamAmpStage.
         NAM_SAMPLE_FLOAT
         # Path otimizado especifico pra arquitetura A2/SlimmableContainer -- exatamente o que
-        # assets/nam/nikolayevsk.nam usa (ver research feito na Fase de plano).
+        # assets/nam/avgvsto.nam usa (ver research feito na Fase de plano).
         NAM_ENABLE_A2_FAST
         # Evita conflito com macros min/max do windows.h ao compilar no Windows; inofensivo no
         # macOS/Linux.
@@ -90,14 +90,14 @@ endif()
 # arquivos soltos ao lado do binario (ver PluginEditor.cpp).
 juce_add_binary_data(DarkDspBinaryData
     SOURCES
-        ${CMAKE_SOURCE_DIR}/assets/ir/nikolayevsk.wav
-        ${CMAKE_SOURCE_DIR}/assets/nam/nikolayevsk.nam
+        ${CMAKE_SOURCE_DIR}/assets/ir/avgvsto.wav
+        ${CMAKE_SOURCE_DIR}/assets/nam/avgvsto.nam
         ${CMAKE_SOURCE_DIR}/ui/dist/index.html
 )
 
-juce_add_plugin(NikolayevskDarkDsp
-    COMPANY_NAME "Nikolayevsk"
-    PRODUCT_NAME "Nikolayevsk DARK DSP"
+juce_add_plugin(AvgvstoDarkDsp
+    COMPANY_NAME "AVGVSTO"
+    PRODUCT_NAME "AVGVSTO DARK DSP"
     PLUGIN_MANUFACTURER_CODE Nklv
     PLUGIN_CODE Ndd1
     FORMATS VST3
@@ -115,7 +115,7 @@ juce_add_plugin(NikolayevskDarkDsp
     NEEDS_WEBVIEW2 TRUE
 )
 
-target_sources(NikolayevskDarkDsp
+target_sources(AvgvstoDarkDsp
     PRIVATE
         src/plugin/PluginProcessor.cpp
         src/plugin/PluginEditor.cpp
@@ -129,7 +129,7 @@ target_sources(NikolayevskDarkDsp
         src/dsp/NamAmpStage.cpp
 )
 
-target_compile_definitions(NikolayevskDarkDsp
+target_compile_definitions(AvgvstoDarkDsp
     PUBLIC
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
@@ -149,7 +149,7 @@ target_compile_definitions(NikolayevskDarkDsp
         JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
 )
 
-target_link_libraries(NikolayevskDarkDsp
+target_link_libraries(AvgvstoDarkDsp
     PRIVATE
         DarkDspBinaryData
         NamCore

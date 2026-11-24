@@ -24,7 +24,7 @@ add_executable(DarkDspTests
 
 target_include_directories(DarkDspTests PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/dsp)
 
-# NamAmpStage.cpp inclui BinaryData.h (asset assets/nam/nikolayevsk.nam embutido) e os headers
+# NamAmpStage.cpp inclui BinaryData.h (asset assets/nam/avgvsto.nam embutido) e os headers
 # da NeuralAmpModelerCore -- mesma lib/target (NamCore, ver CMakeLists.txt de raiz) usada pelo
 # plugin principal.
 target_link_libraries(DarkDspTests PRIVATE NamCore DarkDspBinaryData)

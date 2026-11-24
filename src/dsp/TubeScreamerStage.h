@@ -3,7 +3,7 @@
 #include <juce_dsp/juce_dsp.h>
 
 // Pedal overdrive estilo Tube Screamer (FR-004). Racional da curva em
-// specs/001-nikolayevsk-dark-dsp/research.md secao 2. Implementacao ainda nao passou pelo
+// specs/001-avgvsto-dark-dsp/research.md secao 2. Implementacao ainda nao passou pelo
 // ciclo test-first da Fase 1 de tasks.md (T010) -- valores/curva sujeitos a calibracao.
 class TubeScreamerStage
 {

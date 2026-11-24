@@ -14,7 +14,7 @@
 inline void logDiagnosticEvent (const juce::String& component, const juce::String& message)
 {
     const auto logFile = juce::File::getSpecialLocation (juce::File::tempDirectory)
-                              .getChildFile ("NikolayevskDarkDSP_webview.log");
+                              .getChildFile ("AvgvstoDarkDSP_webview.log");
     logFile.appendText (juce::Time::getCurrentTime().toString (true, true, true, true)
                          + "  [" + component + "] " + message + "\n");
 }

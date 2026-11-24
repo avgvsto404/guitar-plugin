@@ -1,4 +1,4 @@
-# Tasks: Nikolayevsk DARK DSP
+# Tasks: AVGVSTO DARK DSP
 
 **Input**: `plan.md`, `research.md` (mesma pasta)
 **Convenção**: `[P]` = paralelizável (sem dependência de outra task não concluída na mesma fase).
@@ -89,7 +89,7 @@ Tasks sem `[P]` dentro da mesma fase são sequenciais.
       corrigir todos os findings antes de considerar a Fase 1–4 "done".
 - [ ] **T051** Benchmark de CPU por instância (NFR-001) com profiling real (não estimativa) —
       documentar resultado em `research.md` ou anexo de benchmark.
-- [ ] **T052** Sessão de escuta A/B por Nikolayevsk contra referências reais (fecha o checklist
+- [ ] **T052** Sessão de escuta A/B por AVGVSTO contra referências reais (fecha o checklist
       pendente de `spec.md`) — ajustar `PreampStage`/`ToneStack` conforme feedback.
 
 ## Itens bloqueadores externos (não são tasks de código)

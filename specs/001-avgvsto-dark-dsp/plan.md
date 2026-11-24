@@ -1,4 +1,4 @@
-# Implementation Plan: Nikolayevsk DARK DSP
+# Implementation Plan: AVGVSTO DARK DSP
 
 **Input**: `spec.md` (mesma pasta)
 **Status**: Draft — depende de aprovação antes de gerar `tasks.md` executável
@@ -96,7 +96,7 @@ guitar-plugin/
 ├── README.md
 ├── CMakeLists.txt               # root build — FetchContent do JUCE, subdiretórios
 ├── specs/
-│   └── 001-nikolayevsk-dark-dsp/
+│   └── 001-avgvsto-dark-dsp/
 │       ├── spec.md
 │       ├── plan.md              # este arquivo
 │       ├── research.md

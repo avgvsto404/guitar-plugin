@@ -69,7 +69,7 @@ TEST_CASE ("AmpChain Lead mantem cauda de delay/reverb apos o sinal parar", "[am
 }
 
 // NOTA: nao da pra comparar a cauda de Rhythm vs Lead no nivel do AmpChain inteiro pra provar
-// que a ambiencia foi somada -- o CabinetLoader usa um IR de 0.5s (assets/ir/nikolayevsk.wav),
+// que a ambiencia foi somada -- o CabinetLoader usa um IR de 0.5s (assets/ir/avgvsto.wav),
 // entao a cauda da PROPRIA convolucao do cabinet domina totalmente qualquer medicao feita
 // poucas dezenas de ms depois do sinal parar (tentativa inicial deu Rhythm=0.072 vs
 // Lead=0.115 de RMS -- diferenca real, mas pequena demais pra ser um teste robusto, porque os
